@@ -1,55 +1,9 @@
-/* App.css */
-
-/* Center everything inside the App container if needed */
+/* App container */
 .App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   text-align: center;
-}
-
-/* Set font and background for the whole app */
-body, #root {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: #f5f5f5;
-  color: #333;
-  min-height: 100vh;
-}
-
-/* Container for the App layout */
-div {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* Optional spacing between sections */
-div > * {
-  margin-bottom: 20px;
-}
-
-/* Footer styling */
-footer {/* App.css */
-
-/* Reset default margins and paddings */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Set global font and background */
-body, #root {
-  font-family: 'Arial', sans-serif;
-  background-color: #f0f2f5; /* light neutral background */
-  color: #333;
-  min-height: 100vh;
-}
-
-/* Main App container */
-.App {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
 }
 
 /* Space between main sections */
@@ -57,28 +11,16 @@ body, #root {
   margin-bottom: 20px;
 }
 
-/* Optional: center LandingPage content */
-.LandingPage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
+/* Reset global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Footer stays at the bottom */
-footer {
-  margin-top: auto;
-  background-color: #2c3e50; /* matches Navbar */
-  color: white;
-  text-align: center;
-  padding: 15px 0;
-  font-size: 0.9rem;
-}
-
-  margin-top: auto;
-  background-color: #222;
-  color: #fff;
-  text-align: center;
-  padding: 15px 0;
+body, #root {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+  min-height: 100vh;
 }
