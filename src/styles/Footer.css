@@ -1,8 +1,10 @@
-.footer {
+footer {
+  margin-top: auto;
   background-color: #f7f7f7;
-  padding: 20px 40px;
+  /* Light gray background */
+  color: #666666;
   text-align: center;
-  color: #666;
+  padding: 15px 20px;
   font-size: 0.9rem;
   border-top: 1px solid #ddd;
 }

@@ -1,11 +1,12 @@
-.card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin: 15px;
-    text-align: center;
-    transition: transform 0.2s ease;
+.card-container {
+    display: flex;
+    flex-direction: row;
+    /* ensures cards are in a row */
+    flex-wrap: nowrap;
+    /* prevents wrapping to the next line */
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
 }
 
 .card:hover {
@@ -14,9 +15,10 @@
 
 .card h3 {
     color: #5a2ea6;
+    margin-bottom: 10px;
 }
 
 .card p {
     font-size: 0.9rem;
-    color: #333;
+    color: #333333;
 }
