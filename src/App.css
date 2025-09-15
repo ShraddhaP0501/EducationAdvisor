@@ -1,23 +1,4 @@
-/* App.css */
-
-/* Reset default margins, paddings, and box-sizing */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Set global font and background */
-body,
-#root {
-  font-family: 'Arial', sans-serif;
-  background-color: #f5f5f5;
-  /* light neutral background */
-  color: #333333;
-  min-height: 100vh;
-}
-
-/* Main App container layout */
+/* App container */
 .App {
   display: flex;
   flex-direction: column;
@@ -25,27 +6,22 @@ body,
   text-align: center;
 }
 
-/* Space between sections */
+/* Space between main sections */
 .App>* {
   margin-bottom: 20px;
 }
 
-/* Center content in LandingPage if needed */
-.LandingPage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
+/* Reset global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Footer stays at the bottom */
-footer {
-  margin-top: auto;
-  background-color: #2c3e50;
-  /* dark shade complementing purple theme */
-  color: #ffffff;
-  text-align: center;
-  padding: 15px 0;
-  font-size: 0.9rem;
+body,
+#root {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+  min-height: 100vh;
 }

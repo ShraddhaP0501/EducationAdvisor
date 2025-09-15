@@ -1,16 +1,13 @@
 .landing-page {
-  font-family: 'Arial', sans-serif;
-  color: #333333;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Hero Section */
 .hero {
   background-color: #6c4ee3;
   /* Purple background */
   color: #ffffff;
   text-align: center;
-  padding: 60px 20px;
-  border-radius: 0 0 20px 20px;
+  padding: 100px 20px;
 }
 
 .hero h1 {
@@ -26,9 +23,8 @@
 
 /* Features Section */
 .features {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 20px;
+  padding: 60px 20px;
+  text-align: center;
 }
 
 .features h2 {
@@ -38,12 +34,34 @@
   color: #333333;
 }
 
+/* Card container flex */
 .card-container {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
+  gap: 20px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 28px;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .features {
+    padding: 40px 10px;
+  }
+
+  .card-container {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 /* Card Styling */
