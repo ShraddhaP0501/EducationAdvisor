@@ -10,6 +10,7 @@ function Navbar() {
         <li><a href="#colleges">Colleges</a></li>
         <li><a href="#careers">Careers</a></li>
         <li><a href="#quiz">Take Quiz</a></li>
+        <li><a href="#Sign Up">Sign Up</a></li>
       </ul>
     </nav>
   );
