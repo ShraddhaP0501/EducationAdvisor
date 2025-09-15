@@ -2,35 +2,31 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 30px;
-  background-color: #6a0dad;
+  padding: 15px 40px;
+  background-color: #6a0dad; /* Purple theme */
   color: #fff;
-  font-size: 0.95rem;
-  flex-wrap: wrap;
 }
 
-.navbar .logo {
+.logo {
+  font-size: 20px;
   font-weight: bold;
-  font-size: 1.2rem;
 }
 
 .navbar .nav-links {
   display: flex;
   gap: 20px;
   list-style: none;
+  display: flex;
+  gap: 25px;
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 10px 20px;
-  }
-  .navbar .nav-links {
-    flex-direction: column;
-    width: 100%;
-    gap: 10px;
-    margin-top: 10px;
-  }
+.nav-links li a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.nav-links li a:hover {
+  color: #ffccff;
 }

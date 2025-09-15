@@ -8,8 +8,9 @@
 }
 
 .hero {
-  background: linear-gradient(to right, #6a0dad, #4b0082);
-  color: white;
+  background-color: #6c4ee3;
+  /* Purple background */
+  color: #ffffff;
   text-align: center;
   padding: 80px 20px;
   border-radius: 12px;
@@ -17,13 +18,14 @@
 }
 
 .hero h1 {
-  font-size: 36px;
-  margin-bottom: 20px;
+  font-size: 2.4rem;
+  margin-bottom: 15px;
 }
 
 .hero p {
-  font-size: 18px;
-  margin-bottom: 30px;
+  font-size: 1rem;
+  max-width: 600px;
+  margin: 0 auto 25px;
 }
 
 /* Features Section */
@@ -34,31 +36,42 @@
 }
 
 .features h2 {
-  color: #6a0dad;
-  margin-bottom: 40px;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  color: #333333;
 }
 
 /* Card container flex */
 .card-container {
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 20px;
+  justify-content: center;
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-  .hero h1 {
-    font-size: 28px;
-  }
-  .hero p {
-    font-size: 16px;
-  }
-  .features {
-    padding: 40px 10px;
-  }
-  .card-container {
-    flex-direction: column;
-    align-items: center;
-  }
+/* Card Styling */
+.card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 260px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card h3 {
+  color: #6c4ee3;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 0.95rem;
+  color: #555555;
 }
