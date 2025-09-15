@@ -1,15 +1,11 @@
 import React from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import Card from "../components/Card";
 import Button from "../components/Button";
-import ".styles/LandingPage.css";
+import "../styles/LandingPage.css";
 
 function LandingPage() {
   return (
     <div className="landing-page">
-      {/* Navbar */}
-      <Navbar />
 
       {/* Hero Section */}
       <section className="hero">
@@ -46,8 +42,7 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <Footer />
+    
     </div>
   );
 }

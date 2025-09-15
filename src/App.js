@@ -2,11 +2,11 @@ import React from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/LandingPage";
-import "./App.css";
+import "./App.css";  // make sure this path is correct
 
 function App() {
   return (
-    <div>
+    <div className="App">
       <Navbar />
       <LandingPage />
       <Footer />
