@@ -10,6 +10,14 @@
 
 .logo {
   font-size: 20px;
+  padding: 15px 40px;
+  background-color: #6a0dad;
+  /* Purple theme */
+  color: #fff;
+}
+
+.logo {
+  font-size: 20px;
   font-weight: bold;
 }
 
