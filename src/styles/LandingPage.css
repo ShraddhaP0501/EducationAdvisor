@@ -11,12 +11,12 @@
   background: linear-gradient(to right, #6a0dad, #4b0082);
   color: white;
   text-align: center;
-  <<<<<<<<< Temporary merge branch 1 padding: 60px 20px;
+  padding: 60px 20px;
   border-radius: 0 0 20px 20px;
-  =========padding: 80px 20px;
+  padding: 80px 20px;
   border-radius: 12px;
   width: 100%;
-  >>>>>>>>>Temporary merge branch 2
+
 }
 
 .hero h1 {
@@ -34,7 +34,6 @@
   padding: 60px 20px;
   text-align: center;
   width: 100%;
-  >>>>>>>>>Temporary merge branch 2
 }
 
 .features h2 {

@@ -1,16 +1,20 @@
+/* Signup.css */
+
 .signup-container {
-  max-width: 400px;
-  margin: 60px auto;
-  padding: 25px;
-  background: #fff;
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px 30px;
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .signup-container h2 {
+  text-align: center;
   margin-bottom: 20px;
   color: #6a0dad;
+  font-size: 24px;
 }
 
 .signup-container form {
@@ -19,11 +23,34 @@
   gap: 15px;
 }
 
-.signup-container input {
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+.field-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.field-group label {
+  width: 120px;
   font-size: 14px;
+  color: #333;
+  text-align: left;
+}
+
+.field-group input,
+.field-group select {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.field-group input:focus,
+.field-group select:focus {
+  border-color: #6a0dad;
+  box-shadow: 0 0 5px rgba(106, 13, 173, 0.3);
+  outline: none;
 }
 
 .signup-container button {
@@ -34,19 +61,45 @@
   font-size: 16px;
   border-radius: 8px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: background 0.3s, transform 0.2s;
 }
 
 .signup-container button:hover {
   background: #520a96;
+  transform: translateY(-2px);
 }
 
 .signup-container p {
+  text-align: center;
   margin-top: 15px;
   font-size: 14px;
+  color: #555;
 }
 
 .signup-container a {
   color: #6a0dad;
   text-decoration: none;
+  font-weight: 500;
+}
+
+.signup-container a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 700px) {
+  .signup-container {
+    max-width: 90%;
+    padding: 15px 20px;
+  }
+
+  .field-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .field-group label {
+    width: 100%;
+    margin-bottom: 5px;
+  }
 }

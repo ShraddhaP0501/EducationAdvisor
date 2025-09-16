@@ -6,7 +6,6 @@
   text-align: center;
 }
 
-<<<<<<<<< Temporary merge branch 1
 
 /* Space between sections */
 .App>* {
@@ -33,7 +32,7 @@ footer {
   font-size: 0.9rem;
 }
 
-=========
+
 
 /* Space between main sections */
 .App>* {
@@ -54,5 +53,3 @@ body,
   color: #333;
   min-height: 100vh;
 }
-
->>>>>>>>>Temporary merge branch 2
