@@ -22,6 +22,8 @@
 .hero h1 {
   font-size: 36px;
   margin-bottom: 20px;
+  color:white;
+  text-align: center;
 }
 
 .hero p {
