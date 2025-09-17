@@ -1,6 +1,11 @@
 from flask import Flask, request, jsonify, send_from_directory
-from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from passlib import bcypt
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity,
+)
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import pymysql
@@ -20,7 +25,7 @@ jwt = JWTManager(app)
 # -------------------------------
 # JWT Config
 # -------------------------------
-app.config['JWT_SECRET_KEY'] = os.getenv("JWT_SECRET_KEY", "supersecret123")
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "supersecret123")
 
 # -------------------------------
 # Upload Config
@@ -30,8 +35,10 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # -------------------------------
 # MySQL Connection Helper
@@ -42,20 +49,21 @@ def get_db_connection():
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
         database=os.getenv("DB_NAME"),
-        cursorclass=pymysql.cursors.DictCursor
+        cursorclass=pymysql.cursors.DictCursor,
     )
+
 
 # -------------------------------
 # User Signup Route
 # -------------------------------
-@app.route('/api/signup', methods=['POST'])
+@app.route("/api/signup", methods=["POST"])
 def signup():
     data = request.json
-    full_name = data.get('full_name')
-    email = data.get('email')
-    birthday = data.get('birthday')
-    standard = data.get('standard')
-    password = data.get('password')
+    full_name = data.get("full_name")
+    email = data.get("email")
+    birthday = data.get("birthday")
+    standard = data.get("standard")
+    password = data.get("password")
 
     if not (full_name and email and birthday and password):
         return jsonify({"error": "Missing required fields"}), 400
@@ -73,7 +81,7 @@ def signup():
     pw_hash = bcrypt.generate_password_hash(password).decode("utf-8")
     cursor.execute(
         "INSERT INTO users (full_name, email, birthday, standard, password_hash) VALUES (%s, %s, %s, %s, %s)",
-        (full_name, email, birthday, standard, pw_hash)
+        (full_name, email, birthday, standard, pw_hash),
     )
     db.commit()
     cursor.close()
@@ -81,32 +89,39 @@ def signup():
 
     return jsonify({"message": "User registered successfully"}), 201
 
+
 # -------------------------------
 # User Login Route
 # -------------------------------
-@app.route('/api/login', methods=['POST'])
+@app.route("/api/login", methods=["POST"])
 def login():
     data = request.json
-    email = data.get('email')
-    password = data.get('password')
+    email = data.get("email")
+    password = data.get("password")
 
     db = get_db_connection()
     cursor = db.cursor()
-    cursor.execute("SELECT id, full_name, email, password_hash FROM users WHERE email = %s", (email,))
+    cursor.execute(
+        "SELECT id, full_name, email, password_hash FROM users WHERE email = %s",
+        (email,),
+    )
     user = cursor.fetchone()
     cursor.close()
     db.close()
 
-    if not user or not bcrypt.check_password_hash(user['password_hash'], password):
+    if not user or not bcrypt.check_password_hash(user["password_hash"], password):
         return jsonify({"error": "Invalid email or password"}), 401
 
-    access_token = create_access_token(identity={"id": user['id'], "name": user['full_name'], "email": user['email']})
+    access_token = create_access_token(
+        identity={"id": user["id"], "name": user["full_name"], "email": user["email"]}
+    )
     return jsonify({"token": access_token}), 200
+
 
 # -------------------------------
 # Protected Dashboard Route
 # -------------------------------
-@app.route('/api/dashboard', methods=['GET'])
+@app.route("/api/dashboard", methods=["GET"])
 @jwt_required()
 def dashboard():
     current_user = get_jwt_identity()
@@ -115,27 +130,34 @@ def dashboard():
     cursor = db.cursor()
     cursor.execute(
         "SELECT full_name, email, birthday, standard, profile_photo FROM users WHERE id = %s",
-        (current_user['id'],)
+        (current_user["id"],),
     )
     user_data = cursor.fetchone()
     cursor.close()
     db.close()
 
     if user_data:
-        photo_url = f"http://localhost:5000/uploads/{user_data['profile_photo']}" if user_data['profile_photo'] else None
-        return jsonify({
-            "message": "Welcome to your dashboard!",
-            "user": {
-                "id": current_user["id"],
-                "name": user_data["full_name"],
-                "email": user_data["email"],
-                "birthday": user_data["birthday"],
-                "standard": user_data["standard"],
-                "profile_photo": photo_url
+        photo_url = (
+            f"http://localhost:5000/uploads/{user_data['profile_photo']}"
+            if user_data["profile_photo"]
+            else None
+        )
+        return jsonify(
+            {
+                "message": "Welcome to your dashboard!",
+                "user": {
+                    "id": current_user["id"],
+                    "name": user_data["full_name"],
+                    "email": user_data["email"],
+                    "birthday": user_data["birthday"],
+                    "standard": user_data["standard"],
+                    "profile_photo": photo_url,
+                },
             }
-        })
+        )
     else:
         return jsonify({"error": "User not found"}), 404
+
 
 # -------------------------------
 # Upload Profile Photo
@@ -158,14 +180,21 @@ def upload_photo():
 
         db = get_db_connection()
         cursor = db.cursor()
-        cursor.execute("UPDATE users SET profile_photo = %s WHERE id = %s", (filename, current_user['id']))
+        cursor.execute(
+            "UPDATE users SET profile_photo = %s WHERE id = %s",
+            (filename, current_user["id"]),
+        )
         db.commit()
         cursor.close()
         db.close()
 
-        return jsonify({"message": "Photo uploaded successfully", "filename": filename}), 200
+        return (
+            jsonify({"message": "Photo uploaded successfully", "filename": filename}),
+            200,
+        )
     else:
         return jsonify({"error": "Invalid file type"}), 400
+
 
 # -------------------------------
 # Serve uploaded files
@@ -173,6 +202,7 @@ def upload_photo():
 @app.route("/uploads/<filename>")
 def uploaded_file(filename):
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
 
 # -------------------------------
 # Run Flask
