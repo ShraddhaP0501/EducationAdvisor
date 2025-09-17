@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import "../styles/Signup.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const Signup = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const message = location.state?.message;
+
   const [formData, setFormData] = useState({
-    name: "",
+    full_name: "",
     email: "",
-    birthdate: "",
+    birthday: "",
     standard: "",
     password: "",
     confirmPassword: ""
@@ -26,7 +30,8 @@ const Signup = () => {
   const toggleConfirmPassword = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
@@ -34,23 +39,48 @@ const Signup = () => {
       return;
     }
 
-    console.log("User Signed Up:", formData);
-    alert("Sign Up Successful!");
+    try {
+      const response = await fetch("http://localhost:5000/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: formData.full_name,
+          email: formData.email,
+          birthday: formData.birthday,
+          standard: formData.standard,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Sign Up Successful!");
+        navigate("/login");
+      } else {
+        alert(data.error || "Signup failed!");
+      }
+    } catch (error) {
+      console.error("Error during signup:", error);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   return (
     <div className="signup-container">
       <h2>Create Your Account</h2>
-      <form onSubmit={handleSubmit}>
 
+      {message && <p className="error-message">{message}</p>}
+
+      <form onSubmit={handleSubmit}>
         <div className="field-group">
-          <label htmlFor="name">Full Name:</label>
+          <label htmlFor="full_name">Full Name:</label>
           <input
             type="text"
-            id="name"
-            name="name"
+            id="full_name"
+            name="full_name"
             placeholder="Enter your full name"
-            value={formData.name}
+            value={formData.full_name}
             onChange={handleChange}
             required
           />
@@ -70,12 +100,12 @@ const Signup = () => {
         </div>
 
         <div className="field-group">
-          <label htmlFor="birthdate">Birthday:</label>
+          <label htmlFor="birthday">Birthday:</label>
           <input
             type="date"
-            id="birthdate"
-            name="birthdate"
-            value={formData.birthdate}
+            id="birthday"
+            name="birthday"
+            value={formData.birthday}
             onChange={handleChange}
             required
           />
@@ -96,7 +126,6 @@ const Signup = () => {
           </select>
         </div>
 
-        {/* Password Field with Eye Icon */}
         <div className="field-group password-group">
           <label htmlFor="password">Password:</label>
           <div className="password-wrapper">
@@ -115,7 +144,6 @@ const Signup = () => {
           </div>
         </div>
 
-        {/* Confirm Password Field with Eye Icon */}
         <div className="field-group password-group">
           <label htmlFor="confirmPassword">Confirm Password:</label>
           <div className="password-wrapper">
