@@ -7,6 +7,7 @@ function Navbar() {
     <nav className="navbar">
       <div className="logo">Career Advisor</div>
       <ul className="nav-links">
+        <li><Link to="/LandingPage">Home</Link></li>
         <li><a href="#features">Features</a></li>
         <li><a href="#colleges">Colleges</a></li>
         <li><a href="#careers">Careers</a></li>
