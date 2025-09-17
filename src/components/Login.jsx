@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/Login.css";
+<<<<<<< HEAD
 import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
@@ -9,13 +10,31 @@ const Login = () => {
   const [error, setError] = useState("");
 
   // Update form state on input change
+=======
+import { useNavigate } from "react-router-dom";
+
+const Login = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    standard: "10", // default selected class
+  });
+
+  const navigate = useNavigate();
+
+>>>>>>> d78662436ebd5c24e368323d4f5f42ea768fb38c
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   // Submit login form
   const handleSubmit = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     setLoading(true);
     setError("");
 
@@ -42,6 +61,17 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+=======
+
+    // Store selected class in localStorage
+    localStorage.setItem("standard", formData.standard);
+
+    console.log("User Logged In:", formData);
+    alert("Login Successful!");
+
+    // Navigate to dashboard (or home page)
+    navigate("/dashboard");
+>>>>>>> d78662436ebd5c24e368323d4f5f42ea768fb38c
   };
 
   return (
@@ -75,8 +105,26 @@ const Login = () => {
           />
         </div>
 
+<<<<<<< HEAD
         <button type="submit" className="Login-btn" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
+=======
+        <div className="form-group">
+          <label>Select Your Class</label>
+          <select
+            name="standard"
+            value={formData.standard}
+            onChange={handleChange}
+            required
+          >
+            <option value="10">10th</option>
+            <option value="12">12th</option>
+          </select>
+        </div>
+
+        <button type="submit" className="Login-btn">
+          Login
+>>>>>>> d78662436ebd5c24e368323d4f5f42ea768fb38c
         </button>
       </form>
 

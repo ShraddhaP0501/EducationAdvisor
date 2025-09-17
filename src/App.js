@@ -6,9 +6,14 @@ import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
+<<<<<<< HEAD
 import QuizPage from './pages/QuizPage';   // old quiz
 import CareerPage from './pages/CareerPage'; // ✅ new (was QuizPagee)
 import CollegePage from './pages/CollegePage';
+=======
+import QuizPage from './pages/QuizPage';
+import quiz from './components/quiz';
+>>>>>>> d78662436ebd5c24e368323d4f5f42ea768fb38c
 
 import "./App.css";
 
@@ -24,10 +29,18 @@ function App() {
           <Route path="/landingpage" element={<LandingPage />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
+<<<<<<< HEAD
           <Route path="/quiz" element={<QuizPage />} />   {/* old quiz */}
           <Route path="/career" element={<CareerPage />} /> {/* ✅ new career mapping */}
           <Route path="/college" element={<CollegePage />} />
           <Route path="/dashboard" element={<Dashboard />} />
+=======
+
+          <Route path="/quiz" element={<QuizPage />} /> {/**/}
+          <Route path="/login" element={<Login />} />
+
+          <Route path="/dashboard" element={<Dashboard />} /> {/* ✅ new route */}
+>>>>>>> d78662436ebd5c24e368323d4f5f42ea768fb38c
         </Routes>
 
         <Footer />
