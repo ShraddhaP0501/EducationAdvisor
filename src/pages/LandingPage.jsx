@@ -1,23 +1,22 @@
-
 import React from "react";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import "../styles/LandingPage.css";
-
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 function LandingPage() {
-
   const navigate = useNavigate();
 
-  const handleClick = () => {
-    console.log('Button clicked'); // ✅ Debugging
-    navigate('/Signup');             // ✅ Navigates to Quiz page
+  const handleGetStarted = () => {
+    navigate("/quiz"); // old quiz
+  };
+
+  const handleCourseMapping = () => {
+    navigate("/career"); // ✅ now goes to CareerPage
   };
 
   return (
     <div className="landing-page">
-
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-content">
@@ -26,9 +25,7 @@ function LandingPage() {
             Discover your best-fit course, explore nearby government colleges,
             and map your career path with AI-powered guidance.
           </p>
-
-          {/* ✅ This button will now work */}
-          <Button text="Get Started" onClick={handleClick} />
+          <Button text="Get Started" onClick={handleGetStarted} />
         </div>
       </section>
 
@@ -39,10 +36,12 @@ function LandingPage() {
           <Card
             title="Aptitude Quiz"
             description="Take a short quiz to discover courses and careers aligned with your interests."
+            onClick={handleGetStarted}
           />
           <Card
             title="Course to Career Mapping"
             description="See visual paths from courses to government jobs, private careers, and higher studies."
+            onClick={handleCourseMapping} // ✅ this now navigates to CareerPage
           />
           <Card
             title="Nearby Colleges"
@@ -54,7 +53,6 @@ function LandingPage() {
           />
         </div>
       </section>
-
     </div>
   );
 }
