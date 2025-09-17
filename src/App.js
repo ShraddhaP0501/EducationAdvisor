@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import LandingPage from "./pages/LandingPage";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
+import QuizPage from './pages/QuizPage';
 import "./App.css";
 
 function App() {
@@ -16,7 +17,8 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} /> 
+          <Route path="/login" element={<Login />} />
+          <Route path="/quiz" element={<QuizPage />} /> {/**/}
         </Routes>
 
         <Footer />

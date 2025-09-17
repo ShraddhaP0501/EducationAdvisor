@@ -7,7 +7,7 @@
 }
 
 /* Space between main sections */
-.App > * {
+.App>* {
   margin-bottom: 20px;
 }
 
@@ -18,9 +18,26 @@
   box-sizing: border-box;
 }
 
-body, #root {
+body,
+#root {
   font-family: Arial, Helvetica, sans-serif;
   background-color: #f5f5f5;
   color: #333;
   min-height: 100vh;
+}
+
+/* Use a clean font */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+/* Main app wrapper */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
