@@ -1,181 +1,224 @@
-from flask import Flask, request, jsonify, send_from_directory
-from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask import Flask, request, jsonify
+from flask_jwt_extended import (
+    JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
+)
 from flask_cors import CORS
-from werkzeug.utils import secure_filename
-import pymysql
+from passlib.hash import pbkdf2_sha256
+from datetime import datetime, timedelta
+import mysql.connector
 import os
+from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 
-# -------------------------------
 # Load environment variables
-# -------------------------------
 load_dotenv()
 
+# Flask setup
 app = Flask(__name__)
-CORS(app)  # Allow requests from React frontend
-bcrypt = Bcrypt(app)
+CORS(app, supports_credentials=True)
+
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+
+# MySQL config
+DB_HOST = os.getenv("DB_HOST")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME")
+DB_PORT = int(os.getenv("DB_PORT", 3306))
+
 jwt = JWTManager(app)
 
-# -------------------------------
-# JWT Config
-# -------------------------------
-app.config['JWT_SECRET_KEY'] = os.getenv("JWT_SECRET_KEY", "supersecret123")
+# Inactivity limit
+INACTIVITY_LIMIT = timedelta(minutes=30)
 
-# -------------------------------
-# Upload Config
-# -------------------------------
+# Upload folder
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# -------------------------------
-# MySQL Connection Helper
-# -------------------------------
+# MySQL connection helper
 def get_db_connection():
-    return pymysql.connect(
-        host=os.getenv("DB_HOST"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME"),
-        cursorclass=pymysql.cursors.DictCursor
+    return mysql.connector.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME,
+        port=DB_PORT
     )
 
-# -------------------------------
-# User Signup Route
-# -------------------------------
-@app.route('/api/signup', methods=['POST'])
-def signup():
-    data = request.json
-    full_name = data.get('full_name')
-    email = data.get('email')
-    birthday = data.get('birthday')
-    standard = data.get('standard')
-    password = data.get('password')
+# Middleware: inactivity check
+@app.before_request
+def check_inactivity():
+    try:
+        verify_jwt_in_request(optional=True)
+        user_id = get_jwt_identity()
+        if not user_id:
+            return
 
-    if not (full_name and email and birthday and password):
-        return jsonify({"error": "Missing required fields"}), 400
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT last_activity FROM user_sessions WHERE user_id=%s", (int(user_id),))
+        session = cursor.fetchone()
 
-    db = get_db_connection()
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-    existing_user = cursor.fetchone()
+        if session:
+            last_activity = session["last_activity"]
+            if datetime.utcnow() - last_activity > INACTIVITY_LIMIT:
+                cursor.execute("DELETE FROM user_sessions WHERE user_id=%s", (int(user_id),))
+                conn.commit()
+                cursor.close()
+                conn.close()
+                return jsonify({"msg": "Session expired due to inactivity"}), 401
 
-    if existing_user:
+            # Update last activity
+            cursor.execute(
+                "UPDATE user_sessions SET last_activity=%s WHERE user_id=%s",
+                (datetime.utcnow(), int(user_id))
+            )
+            conn.commit()
+
         cursor.close()
-        db.close()
-        return jsonify({"error": "Email already exists"}), 409
+        conn.close()
+    except Exception:
+        return
 
-    pw_hash = bcrypt.generate_password_hash(password).decode("utf-8")
-    cursor.execute(
-        "INSERT INTO users (full_name, email, birthday, standard, password_hash) VALUES (%s, %s, %s, %s, %s)",
-        (full_name, email, birthday, standard, pw_hash)
-    )
-    db.commit()
-    cursor.close()
-    db.close()
+# Register route
+@app.route("/register", methods=["POST"])
+def register():
+    data = request.get_json()
+    full_name = data.get("full_name")
+    email = data.get("email")
+    birthday = data.get("birthday")
+    standard = data.get("standard")
+    password = data.get("password")
 
-    return jsonify({"message": "User registered successfully"}), 201
+    if not all([full_name, email, birthday, password]):
+        return jsonify({"msg": "Missing required fields"}), 400
 
-# -------------------------------
-# User Login Route
-# -------------------------------
-@app.route('/api/login', methods=['POST'])
+    password_hash = pbkdf2_sha256.hash(password)
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute(
+            "INSERT INTO users (full_name, email, birthday, standard, password_hash) VALUES (%s, %s, %s, %s, %s)",
+            (full_name, email, birthday, standard, password_hash)
+        )
+        conn.commit()
+        return jsonify({"msg": "User registered successfully"}), 201
+    except mysql.connector.Error as e:
+        return jsonify({"msg": "Email already exists or DB error", "error": str(e)}), 400
+    finally:
+        cursor.close()
+        conn.close()
+
+# Login route
+@app.route("/login", methods=["POST"])
 def login():
-    data = request.json
-    email = data.get('email')
-    password = data.get('password')
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
 
-    db = get_db_connection()
-    cursor = db.cursor()
-    cursor.execute("SELECT id, full_name, email, password_hash FROM users WHERE email = %s", (email,))
+    if not email or not password:
+        return jsonify({"msg": "Missing email or password"}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
+    user = cursor.fetchone()
+
+    if not user or not pbkdf2_sha256.verify(password, user["password_hash"]):
+        cursor.close()
+        conn.close()
+        return jsonify({"msg": "Invalid email or password"}), 401
+
+    # Create access token (identity must be string)
+    access_token = create_access_token(identity=str(user["id"]))
+
+    # Save session
+    cursor.execute(
+        "INSERT INTO user_sessions (user_id, token, last_activity) VALUES (%s, %s, %s)",
+        (user["id"], access_token, datetime.utcnow())
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify(access_token=access_token, user_id=user["id"]), 200
+
+# Profile route
+@app.route("/profile", methods=["GET"])
+@jwt_required()
+def profile():
+    user_id = int(get_jwt_identity())
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, full_name, email, birthday, standard, profile_photo FROM users WHERE id=%s",
+        (user_id,)
+    )
     user = cursor.fetchone()
     cursor.close()
-    db.close()
+    conn.close()
 
-    if not user or not bcrypt.check_password_hash(user['password_hash'], password):
-        return jsonify({"error": "Invalid email or password"}), 401
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
 
-    access_token = create_access_token(identity={"id": user['id'], "name": user['full_name'], "email": user['email']})
-    return jsonify({"token": access_token}), 200
+    user_data = {
+        "id": user[0],
+        "full_name": user[1],
+        "email": user[2],
+        "birthday": user[3],
+        "standard": user[4],
+        "profile_photo": user[5] if user[5] else None
+    }
+    return jsonify(user_data), 200
 
-# -------------------------------
-# Protected Dashboard Route
-# -------------------------------
-@app.route('/api/dashboard', methods=['GET'])
+# Logout route
+@app.route("/logout", methods=["POST"])
 @jwt_required()
-def dashboard():
-    current_user = get_jwt_identity()
-
-    db = get_db_connection()
-    cursor = db.cursor()
-    cursor.execute(
-        "SELECT full_name, email, birthday, standard, profile_photo FROM users WHERE id = %s",
-        (current_user['id'],)
-    )
-    user_data = cursor.fetchone()
+def logout():
+    user_id = int(get_jwt_identity())
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("DELETE FROM user_sessions WHERE user_id=%s", (user_id,))
+    conn.commit()
     cursor.close()
-    db.close()
+    conn.close()
+    return jsonify({"msg": "Logged out"}), 200
 
-    if user_data:
-        photo_url = f"http://localhost:5000/uploads/{user_data['profile_photo']}" if user_data['profile_photo'] else None
-        return jsonify({
-            "message": "Welcome to your dashboard!",
-            "user": {
-                "id": current_user["id"],
-                "name": user_data["full_name"],
-                "email": user_data["email"],
-                "birthday": user_data["birthday"],
-                "standard": user_data["standard"],
-                "profile_photo": photo_url
-            }
-        })
-    else:
-        return jsonify({"error": "User not found"}), 404
-
-# -------------------------------
-# Upload Profile Photo
-# -------------------------------
-@app.route("/api/upload-photo", methods=["POST"])
+# Upload photo route
+@app.route("/upload-photo", methods=["POST"])
 @jwt_required()
 def upload_photo():
-    current_user = get_jwt_identity()
     if "photo" not in request.files:
-        return jsonify({"error": "No file part"}), 400
+        return jsonify({"msg": "No file part"}), 400
 
     file = request.files["photo"]
     if file.filename == "":
-        return jsonify({"error": "No selected file"}), 400
+        return jsonify({"msg": "No selected file"}), 400
 
     if file and allowed_file(file.filename):
-        filename = secure_filename(f"user_{current_user['id']}_{file.filename}")
+        filename = secure_filename(file.filename)
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(filepath)
 
-        db = get_db_connection()
-        cursor = db.cursor()
-        cursor.execute("UPDATE users SET profile_photo = %s WHERE id = %s", (filename, current_user['id']))
-        db.commit()
+        # Save filename to user table
+        user_id = int(get_jwt_identity())
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("UPDATE users SET profile_photo=%s WHERE id=%s", (filename, user_id))
+        conn.commit()
         cursor.close()
-        db.close()
+        conn.close()
 
-        return jsonify({"message": "Photo uploaded successfully", "filename": filename}), 200
-    else:
-        return jsonify({"error": "Invalid file type"}), 400
+        return jsonify({"msg": "File uploaded successfully", "filename": filename}), 200
 
-# -------------------------------
-# Serve uploaded files
-# -------------------------------
-@app.route("/uploads/<filename>")
-def uploaded_file(filename):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+    return jsonify({"msg": "File type not allowed"}), 400
 
-# -------------------------------
-# Run Flask
-# -------------------------------
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True)

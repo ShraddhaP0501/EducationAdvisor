@@ -1,46 +1,40 @@
 import React, { useState } from "react";
 import "../styles/Signup.css";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const message = location.state?.message;
-
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
     birthday: "",
     standard: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
+  // Update form state on input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const togglePassword = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const toggleConfirmPassword = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
-
+  // Submit signup form
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
+    // Password confirmation
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      setError("Passwords do not match!");
       return;
     }
 
+    setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/signup", {
+      const response = await fetch("http://localhost:5000/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -48,21 +42,23 @@ const Signup = () => {
           email: formData.email,
           birthday: formData.birthday,
           standard: formData.standard,
-          password: formData.password
-        })
+          password: formData.password,
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert("Sign Up Successful!");
+        alert("Sign Up Successful! Please login.");
         navigate("/login");
       } else {
-        alert(data.error || "Signup failed!");
+        setError(data.msg || "Signup failed");
       }
-    } catch (error) {
-      console.error("Error during signup:", error);
-      alert("Something went wrong. Please try again.");
+    } catch (err) {
+      console.error("Signup error:", err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,16 +66,14 @@ const Signup = () => {
     <div className="signup-container">
       <h2>Create Your Account</h2>
 
-      {message && <p className="error-message">{message}</p>}
+      {error && <p className="error-message">{error}</p>}
 
-      <form onSubmit={handleSubmit}>
+      <form className="signup-form" onSubmit={handleSubmit}>
         <div className="field-group">
-          <label htmlFor="full_name">Full Name:</label>
+          <label>Full Name</label>
           <input
             type="text"
-            id="full_name"
             name="full_name"
-            placeholder="Enter your full name"
             value={formData.full_name}
             onChange={handleChange}
             required
@@ -87,12 +81,10 @@ const Signup = () => {
         </div>
 
         <div className="field-group">
-          <label htmlFor="email">Email:</label>
+          <label>Email</label>
           <input
             type="email"
-            id="email"
             name="email"
-            placeholder="Enter your email"
             value={formData.email}
             onChange={handleChange}
             required
@@ -100,10 +92,9 @@ const Signup = () => {
         </div>
 
         <div className="field-group">
-          <label htmlFor="birthday">Birthday:</label>
+          <label>Birthday</label>
           <input
             type="date"
-            id="birthday"
             name="birthday"
             value={formData.birthday}
             onChange={handleChange}
@@ -112,9 +103,8 @@ const Signup = () => {
         </div>
 
         <div className="field-group">
-          <label htmlFor="standard">Standard:</label>
+          <label>Standard</label>
           <select
-            id="standard"
             name="standard"
             value={formData.standard}
             onChange={handleChange}
@@ -126,46 +116,34 @@ const Signup = () => {
           </select>
         </div>
 
-        <div className="field-group password-group">
-          <label htmlFor="password">Password:</label>
-          <div className="password-wrapper">
-            <input
-              type={showPassword ? "text" : "password"}
-              id="password"
-              name="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-            <span className="toggle-icon" onClick={togglePassword}>
-              {showPassword ? "👁️" : "🙈"}
-            </span>
-          </div>
+        <div className="field-group">
+          <label>Password</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
         </div>
 
-        <div className="field-group password-group">
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <div className="password-wrapper">
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              id="confirmPassword"
-              name="confirmPassword"
-              placeholder="Confirm your password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-            <span className="toggle-icon" onClick={toggleConfirmPassword}>
-              {showConfirmPassword ? "👁️" : "🙈"}
-            </span>
-          </div>
+        <div className="field-group">
+          <label>Confirm Password</label>
+          <input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+          />
         </div>
 
-        <button type="submit">Sign Up</button>
+        <button type="submit" className="signup-btn" disabled={loading}>
+          {loading ? "Signing up..." : "Sign Up"}
+        </button>
       </form>
 
-      <p>
+      <p className="login-link">
         Already have an account? <Link to="/login">Log In</Link>
       </p>
     </div>

@@ -4,36 +4,48 @@ import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null); // user data from backend
+  const [user, setUser] = useState(null);
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  // Fetch user profile on component mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/login"); // redirect if not logged in
+      navigate("/login");
       return;
     }
 
     const fetchUser = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/dashboard", {
+        const response = await fetch("http://localhost:5000/profile", {
           method: "GET",
           headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         });
 
         if (response.ok) {
           const data = await response.json();
-          setUser(data.user);
-        } else {
+          // If backend returns filename, prepend uploads path
+          if (data.profile_photo && !data.profile_photo.startsWith("http")) {
+            data.profile_photo = `http://localhost:5000/uploads/${data.profile_photo}`;
+          }
+          setUser(data);
+        } else if (response.status === 401) {
+          // Token invalid or expired
           localStorage.removeItem("token");
           navigate("/login");
+        } else {
+          const data = await response.json();
+          setError(data.msg || "Failed to fetch user");
         }
-      } catch (error) {
-        console.error("Error fetching dashboard:", error);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setError("Something went wrong. Please login again.");
+        localStorage.removeItem("token");
         navigate("/login");
       } finally {
         setLoading(false);
@@ -43,6 +55,7 @@ const Dashboard = () => {
     fetchUser();
   }, [navigate]);
 
+  // Upload profile photo
   const handleUpload = async () => {
     if (!file) return alert("Select a file first");
 
@@ -51,36 +64,51 @@ const Dashboard = () => {
     formData.append("photo", file);
 
     try {
-      const response = await fetch("http://localhost:5000/api/upload-photo", {
+      const response = await fetch("http://localhost:5000/upload-photo", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
       const data = await response.json();
-      if (response.ok) {
+      if (response.ok && data.filename) {
         alert("Photo uploaded successfully!");
-        // Refresh user data to get new photo URL
         setUser({ ...user, profile_photo: `http://localhost:5000/uploads/${data.filename}` });
       } else {
-        alert(data.error || "Upload failed");
+        alert(data.msg || "Upload failed");
       }
-    } catch (error) {
-      console.error("Upload error:", error);
+    } catch (err) {
+      console.error(err);
       alert("Something went wrong. Please try again.");
     }
   };
 
+  // Logout
+  const handleLogout = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      await fetch("http://localhost:5000/logout", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      localStorage.removeItem("token");
+      navigate("/login");
+    }
+  };
+
   if (loading) return <p>Loading dashboard...</p>;
-  if (!user) return null;
+  if (!user) return <p>{error || "No user data available"}</p>;
 
   return (
     <div className="dashboard">
-      <h1>Welcome, {user.name}!</h1>
+      <div className="dashboard-header">
+        <h1>Welcome, {user.full_name}!</h1>
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+      </div>
 
-      {/* Profile Snapshot */}
       <div className="profile-card">
         <div className="photo-wrapper">
           {user.profile_photo ? (
@@ -90,8 +118,10 @@ const Dashboard = () => {
           )}
         </div>
 
-        <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-        <button onClick={handleUpload}>Upload / Change Photo</button>
+        <div className="profile-actions">
+          <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+          <button onClick={handleUpload}>Upload / Change Photo</button>
+        </div>
 
         <div className="user-info">
           <p><strong>Email:</strong> {user.email}</p>
@@ -100,19 +130,16 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Career Recommendations */}
       <div className="section">
         <h2>Career Recommendations</h2>
         <p>[AI-generated suggestions will appear here]</p>
       </div>
 
-      {/* Nearby Colleges & Programs */}
       <div className="section">
         <h2>Nearby Colleges & Programs</h2>
         <p>[Fetched from backend or static placeholder]</p>
       </div>
 
-      {/* Opportunities & Alerts */}
       <div className="section">
         <h2>Opportunities & Alerts</h2>
         <p>[Fetched from backend or static placeholder]</p>
