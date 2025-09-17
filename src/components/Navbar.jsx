@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";   // ✅ must import Link
+import { Link } from "react-router-dom";
 import "../styles/Navbar.css";
 
 function Navbar() {
@@ -11,8 +11,14 @@ function Navbar() {
         <li><a href="#colleges">Colleges</a></li>
         <li><a href="#careers">Careers</a></li>
         <li><Link to="/quiz">Take Quiz</Link></li>{/*now working*/}
-        <li><Link to="/signup">Sign Up</Link></li> {/* ✅ works now */}
-        <li><Link to="/login">Login</Link></li>
+        <li><Link to="/signup">Sign Up/Login</Link></li>
+        {/* Profile Circle */}
+        <li>
+          <Link to="/dashboard" className="profile-circle">
+            {/* You can put initials or icon */}
+            JD
+          </Link>
+        </li>
 
       </ul>
     </nav>

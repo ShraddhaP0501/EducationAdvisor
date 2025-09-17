@@ -3,7 +3,16 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 40px;
-  background-color: #6a0dad; /* Purple theme */
+  background-color: #6a0dad;
+  /* Purple theme */
+  color: #fff;
+}
+
+.logo {
+  font-size: 20px;
+  padding: 15px 40px;
+  background-color: #6a0dad;
+  /* Purple theme */
   color: #fff;
 }
 
@@ -14,7 +23,7 @@
 
 .navbar .nav-links {
   display: flex;
-  gap: 20px;
+  gap: 0px;
   list-style: none;
   display: flex;
   gap: 25px;
@@ -29,4 +38,23 @@
 
 .nav-links li a:hover {
   color: #ffccff;
+}
+
+/* Profile Circle */
+.profile-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: #ffccff; /* light pink, you can change */
+  color: #6a0dad; /* purple text */
+  font-weight: bold;
+  text-decoration: none;
+  transition: transform 0.3s;
+}
+
+.profile-circle:hover {
+  transform: scale(1.1);
 }
