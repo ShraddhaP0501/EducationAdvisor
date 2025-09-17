@@ -1,20 +1,35 @@
 import React, { useState } from "react";
 import "../styles/Login.css";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    standard: "10", // default selected class
   });
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Store selected class in localStorage
+    localStorage.setItem("standard", formData.standard);
+
     console.log("User Logged In:", formData);
     alert("Login Successful!");
+
+    // Navigate to dashboard (or home page)
+    navigate("/dashboard");
   };
 
   return (
@@ -43,6 +58,19 @@ const Login = () => {
             onChange={handleChange}
             required
           />
+        </div>
+
+        <div className="form-group">
+          <label>Select Your Class</label>
+          <select
+            name="standard"
+            value={formData.standard}
+            onChange={handleChange}
+            required
+          >
+            <option value="10">10th</option>
+            <option value="12">12th</option>
+          </select>
         </div>
 
         <button type="submit" className="Login-btn">
