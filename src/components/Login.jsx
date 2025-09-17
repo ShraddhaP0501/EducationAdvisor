@@ -10,7 +10,11 @@ const Login = () => {
 
   // Update form state on input change
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   // Submit login form
