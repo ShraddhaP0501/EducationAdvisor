@@ -8,7 +8,7 @@ function LandingPage() {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    navigate("/quiz"); // old quiz
+    navigate("/Signup"); // old quiz
   };
 
   const handleCourseMapping = () => {
