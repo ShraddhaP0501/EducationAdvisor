@@ -10,7 +10,7 @@ function Navbar() {
         <li><a href="#features">Features</a></li>
         <li><a href="#colleges">Colleges</a></li>
         <li><a href="#careers">Careers</a></li>
-        <li><a href="#quiz">Take Quiz</a></li>
+        <li><Link to="/quiz">Take Quiz</Link></li>{/*now working*/}
         <li><Link to="/signup">Sign Up/Login</Link></li>
         {/* Profile Circle */}
         <li>
@@ -19,6 +19,7 @@ function Navbar() {
             JD
           </Link>
         </li>
+
       </ul>
     </nav>
   );

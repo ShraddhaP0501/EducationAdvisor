@@ -14,7 +14,8 @@
 .Login-container h2 {
   margin-bottom: 20px;
   font-size: 24px;
-  color: #6a0dad; /* Purple theme */
+  color: #6a0dad;
+  /* Purple theme */
 }
 
 .Login-form {
@@ -24,14 +25,16 @@
 }
 
 .form-group {
-  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .form-group label {
-  display: block;
+  width: 120px;
   font-size: 14px;
-  margin-bottom: 6px;
   color: #333;
+  text-align: left;
 }
 
 .form-group input {

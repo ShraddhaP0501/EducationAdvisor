@@ -1,9 +1,20 @@
+
 import React from "react";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import "../styles/LandingPage.css";
 
+import { useNavigate } from 'react-router-dom';
+
 function LandingPage() {
+
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    console.log('Button clicked'); // ✅ Debugging
+    navigate('/Signup');             // ✅ Navigates to Quiz page
+  };
+
   return (
     <div className="landing-page">
 
@@ -12,10 +23,12 @@ function LandingPage() {
         <div className="hero-content">
           <h1>One-Stop Career & Education Advisor</h1>
           <p>
-            Discover your best-fit course, explore nearby government colleges, 
+            Discover your best-fit course, explore nearby government colleges,
             and map your career path with AI-powered guidance.
           </p>
-          <Button text="Get Started" onClick={() => alert("Redirect to Quiz Page")} />
+
+          {/* ✅ This button will now work */}
+          <Button text="Get Started" onClick={handleClick} />
         </div>
       </section>
 
@@ -42,7 +55,6 @@ function LandingPage() {
         </div>
       </section>
 
-    
     </div>
   );
 }
