@@ -1,10 +1,10 @@
-from flask import Flask, request, jsonify, send_from_directory
-from passlib import bcypt
+from flask import Flask, request, jsonify
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
     jwt_required,
     get_jwt_identity,
+    verify_jwt_in_request,
 )
 from flask_cors import CORS
 from passlib.hash import pbkdf2_sha256
@@ -33,14 +33,10 @@ DB_PORT = int(os.getenv("DB_PORT", 3306))
 
 jwt = JWTManager(app)
 
-# -------------------------------
-# JWT Config
-# -------------------------------
-app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "supersecret123")
+# Inactivity limit
+INACTIVITY_LIMIT = timedelta(minutes=30)
 
-# -------------------------------
-# Upload Config
-# -------------------------------
+# Upload folder
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
@@ -131,13 +127,9 @@ def register():
         cursor.close()
         conn.close()
 
-    return jsonify({"message": "User registered successfully"}), 201
 
-
-# -------------------------------
-# User Login Route
-# -------------------------------
-@app.route("/api/login", methods=["POST"])
+# Login route
+@app.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
     email = data.get("email")
@@ -247,4 +239,4 @@ def upload_photo():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
