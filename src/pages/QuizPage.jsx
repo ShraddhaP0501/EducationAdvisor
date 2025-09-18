@@ -11,10 +11,11 @@ const QuizPage = () => {
   const navigate = useNavigate();
 
   // Check login status on component mount
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (!isLoggedIn) {
-      navigate("/login"); // redirect to login if not logged in
+ useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must log in to take the quiz.");
+      navigate("/login");
     }
   }, [navigate]);
 
