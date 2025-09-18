@@ -1,7 +1,7 @@
 // src/components/QuizArts.jsx
 
 import React, { useState } from "react";
-import '../styles/Quiz.css';
+import '../styles/quiz.css';
 
 // 10 sample questions for the Arts quiz
 const artsQuestions = [
