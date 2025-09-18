@@ -19,11 +19,6 @@ load_dotenv()
 
 # Flask setup
 app = Flask(__name__)
-
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
 CORS(app, supports_credentials=True)
 
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
