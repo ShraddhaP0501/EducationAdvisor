@@ -1,3 +1,4 @@
+// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -6,41 +7,47 @@ import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
-<<<<<<< HEAD
-import QuizPage from './pages/QuizPage';   // old quiz
-import CareerPage from './pages/CareerPage'; // ✅ new (was QuizPagee)
-import CollegePage from './pages/CollegePage';
-=======
-import QuizPage from './pages/QuizPage';
-import quiz from './components/quiz';
->>>>>>> d78662436ebd5c24e368323d4f5f42ea768fb38c
+import QuizPage from "./pages/QuizPage";
+import CareerPage from "./pages/CareerPage";
+import CollegePage from "./pages/CollegePage";
+
+/* =========================
+   EDITED / NEW IMPORTS
+   - Added imports for the new pages that were missing previously:
+     CareerOptions, After10th, After12th
+   ========================= */
+import CareerOptions from "./pages/CareerOptions"; // EDITED: added
+import CareerSelector from "./pages/CareerSelector"; // EDITED: added
 
 import "./App.css";
 
 function App() {
-  console.log(React.version);
   return (
     <Router>
       <div className="App">
         <Navbar />
 
         <Routes>
+          {/* MAIN ROUTES */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/landingpage" element={<LandingPage />} />
+
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
-<<<<<<< HEAD
-          <Route path="/quiz" element={<QuizPage />} />   {/* old quiz */}
-          <Route path="/career" element={<CareerPage />} /> {/* ✅ new career mapping */}
+          <Route path="/quiz" element={<QuizPage />} />
+
+          {/* Career / Course flow */}
+          {/* NOTE: keep both /career (detailed CareerPage) and the new selector pages */}
+          <Route path="/career" element={<CareerPage />} />
+
+          {/* EDITED: new flow pages for tier selection and tier-specific options */}
+          <Route path="/career-options" element={<CareerOptions />} />   {/* EDITED: added */}
+          <Route path="/career-selector" element={<CareerSelector />} /> {/* EDITED: added */}
+
           <Route path="/college" element={<CollegePage />} />
           <Route path="/dashboard" element={<Dashboard />} />
-=======
 
-          <Route path="/quiz" element={<QuizPage />} /> {/**/}
-          <Route path="/login" element={<Login />} />
-
-          <Route path="/dashboard" element={<Dashboard />} /> {/* ✅ new route */}
->>>>>>> d78662436ebd5c24e368323d4f5f42ea768fb38c
+          {/* CLEANUP: removed duplicate "/" route (was duplicated before) */}
         </Routes>
 
         <Footer />
