@@ -33,6 +33,11 @@ function App() {
           <Route path="/college" element={<CollegePage />} />
 
           <Route path="/dashboard" element={<Dashboard />} />
+
+          <Route path="/quiz" element={<QuizPage />} /> {/**/}
+          <Route path="/login" element={<Login />} />
+
+          <Route path="/dashboard" element={<Dashboard />} /> {/* ✅ new route */}
         </Routes>
 
         <Footer />
