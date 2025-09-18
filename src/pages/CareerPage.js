@@ -263,17 +263,17 @@ function CareerPage() {
               {!selectedStream && <div style={{ color: "#616161", padding: 16, borderRadius: 8, background: "#fff" }}>Choose a stream above to view career options after 12th.</div>}
 
               {selectedStream && selectedStream !== "Science" && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+                <div style={{ display: "flex", flexDirection: "row", gap: 24, justifyContent: "center", width: '100%' }}>
                   {streamOptions.after12[selectedStream].map((career) => (
                     <div
                       key={career.id}
                       className="career-card"
                       onClick={() => handleCareerCardClick(career)}
-                      style={{ padding: 12, borderRadius: 10, background: "#fff", boxShadow: "0 6px 18px rgba(0,0,0,0.06)", cursor: "pointer" }}
+                      style={{ flex: 1, minWidth: 320, maxWidth: 480, padding: 16, borderRadius: 12, background: "#fff", boxShadow: "0 6px 18px rgba(0,0,0,0.06)", cursor: "pointer", display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                     >
-                      <img src={career.img} alt={career.title} style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 8 }} loading="lazy" />
-                      <h4 style={{ marginTop: 8 }}>{career.title}</h4>
-                      <p style={{ color: "#6b7280" }}>{career.desc}</p>
+                      <img src={career.img} alt={career.title} style={{ width: "100%", height: 180, objectFit: "cover", borderRadius: 10 }} loading="lazy" />
+                      <h4 style={{ marginTop: 16, fontSize: '1.3rem', fontWeight: 600, textAlign: 'center' }}>{career.title}</h4>
+                      <p style={{ color: "#6b7280", textAlign: 'center', fontSize: '1.1rem' }}>{career.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -390,8 +390,8 @@ function CareerPage() {
           </div>
         )}
         {tier === "after12" && (
-          <div style={{ margin: '32px auto 0 auto', maxWidth: 700, width: '100%' }}>
-            <div style={{ padding: 20, borderRadius: 12, background: "#fff", boxShadow: "0 6px 18px rgba(0,0,0,0.06)", width: '100%' }}>
+          <div style={{ margin: '32px auto 0 auto', maxWidth: 1200, width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ padding: 28, borderRadius: 12, background: "#fff", boxShadow: "0 6px 18px rgba(0,0,0,0.06)", width: 600, maxWidth: '100%' }}>
               <h4 style={{ marginTop: 0, color: "#673AB7", textAlign: 'center' }}>Details</h4>
               {!selectedCareer && (
                 <div style={{ color: "#616161", textAlign: 'center' }}>
