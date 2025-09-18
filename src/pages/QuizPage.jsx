@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // for redirect
 import Quiz10th from "../components/Quiz10th";
 import Quiz12Science from "../components/QuizScience";
 import Quiz12Commerce from "../components/QuizCommerce";
@@ -6,7 +7,16 @@ import Quiz12Arts from "../components/QuizArts";
 import "../styles/QuizPage.css";
 
 const QuizPage = () => {
-  const [selectedQuiz, setSelectedQuiz] = useState(""); // "" | "10th" | "12thScience" | "12thCommerce" | "12thArts"
+  const [selectedQuiz, setSelectedQuiz] = useState("");
+  const navigate = useNavigate();
+
+  // Check login status on component mount
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!isLoggedIn) {
+      navigate("/login"); // redirect to login if not logged in
+    }
+  }, [navigate]);
 
   const renderQuiz = () => {
     switch (selectedQuiz) {
@@ -31,7 +41,6 @@ const QuizPage = () => {
     }
   };
 
-  // If user clicked 12th quiz, show stream selection
   if (selectedQuiz === "12th") {
     return (
       <div className="quiz-selection">

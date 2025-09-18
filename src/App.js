@@ -9,9 +9,10 @@ import Login from "./components/Login";
 import QuizPage from './pages/QuizPage';   // old quiz
 import CareerPage from './pages/CareerPage'; // ✅ new (was QuizPagee)
 import CollegePage from './pages/CollegePage';
-
-
-import quiz from './components/Quiz10th';
+=========
+import QuizPage from './pages/QuizPage';
+import quiz from './components/quiz';
+>>>>>>>>> Temporary merge branch 2
 
 import "./App.css";
 
@@ -27,12 +28,19 @@ function App() {
           <Route path="/landingpage" element={<LandingPage />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/quiz" element={<QuizPage />} />
-          <Route path="/Quiz10th" element={<QuizPage />} />   {/* old quiz */}
+<<<<<<<<< Temporary merge branch 1
+          <Route path="/quiz" element={<QuizPage />} />   {/* old quiz */}
           <Route path="/career" element={<CareerPage />} /> {/* ✅ new career mapping */}
           <Route path="/college" element={<CollegePage />} />
 
           <Route path="/dashboard" element={<Dashboard />} />
+=========
+
+          <Route path="/quiz" element={<QuizPage />} /> {/**/}
+          <Route path="/login" element={<Login />} />
+
+          <Route path="/dashboard" element={<Dashboard />} /> {/* ✅ new route */}
+>>>>>>>>> Temporary merge branch 2
         </Routes>
 
         <Footer />
