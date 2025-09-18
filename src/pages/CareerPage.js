@@ -123,41 +123,49 @@ function CareerPage() {
 
     const careerList = engineeringCourses[branch];
 
-    const newNodes = [
-      {
-        id: "course",
-        position: { x: 250, y: 0 },
-        data: { label: branch },
-        type: "input",
-        style: {
-          fontSize: 20,
-          fontWeight: "bold",
-          padding: 15,
-          backgroundColor: "#7E57C2",
-          color: "#FFFFFF",
-          borderRadius: "10px",
-        },
-      },
-      ...careerList.map((career, i) => ({
-        id: `career-${i}`,
-        position: { x: 150 + i * 150, y: 150 },
-        data: { label: career },
-        style: {
-          fontSize: 16,
-          padding: 12,
-          backgroundColor: "#9575CD",
-          color: "#FFFFFF",
-          borderRadius: "8px",
-          cursor: "pointer",
-        },
-      })),
-    ];
+      // Center the main node and spread child nodes horizontally
+      const containerWidth = 1200;
+      const nodeWidth = 220;
+      const nodeGap = 60;
+      const totalWidth = careerList.length * nodeWidth + (careerList.length - 1) * nodeGap;
+      const startX = Math.max(0, (containerWidth - totalWidth) / 2);
 
-    const newEdges = careerList.map((_, i) => ({
+      const newNodes = [
+        {
+          id: "course",
+          position: { x: 0, y: 0 },
+          data: { label: branch },
+          type: "input",
+          style: {
+            fontSize: 20,
+            fontWeight: "bold",
+            padding: 15,
+            backgroundColor: "#7E57C2",
+            color: "#FFFFFF",
+            borderRadius: "10px",
+          },
+        },
+        ...engineeringCourses[branch].map((career, i) => ({
+          id: `career-${i}`,
+          position: { x: i * 220, y: 150 },
+          data: { label: career },
+          style: {
+            fontSize: 16,
+            padding: 12,
+            backgroundColor: "#9575CD",
+            color: "#FFFFFF",
+            borderRadius: "8px",
+            cursor: "pointer",
+          },
+        })),
+      ];
+
+    const newEdges = engineeringCourses[branch].map((_, i) => ({
       id: `edge-${i}`,
       source: "course",
       target: `career-${i}`,
       animated: true,
+      type: "smoothstep",
       style: { stroke: "#673AB7" },
     }));
 
