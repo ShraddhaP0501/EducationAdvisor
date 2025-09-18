@@ -1,6 +1,7 @@
 // src/pages/CareerPage.js
 import React, { useState, useCallback, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import 'reactflow/dist/style.css';
 import ReactFlow, { Background, Controls } from "reactflow";
 
 import "../styles/CareerPage.css";
@@ -123,42 +124,42 @@ function CareerPage() {
 
     const careerList = engineeringCourses[branch];
 
-      // Center the main node and spread child nodes horizontally
-      const containerWidth = 1200;
-      const nodeWidth = 220;
-      const nodeGap = 60;
-      const totalWidth = careerList.length * nodeWidth + (careerList.length - 1) * nodeGap;
-      const startX = Math.max(0, (containerWidth - totalWidth) / 2);
+    // Center the main node and spread child nodes horizontally
+    const containerWidth = 1200;
+    const nodeWidth = 220;
+    const nodeGap = 60;
+    const totalWidth = careerList.length * nodeWidth + (careerList.length - 1) * nodeGap;
+    const startX = Math.max(0, (containerWidth - totalWidth) / 2);
 
-      const newNodes = [
-        {
-          id: "course",
-          position: { x: 0, y: 0 },
-          data: { label: branch },
-          type: "input",
-          style: {
-            fontSize: 20,
-            fontWeight: "bold",
-            padding: 15,
-            backgroundColor: "#7E57C2",
-            color: "#FFFFFF",
-            borderRadius: "10px",
-          },
+    const newNodes = [
+      {
+        id: "course",
+        position: { x: 0, y: 0 },
+        data: { label: branch },
+        type: "input",
+        style: {
+          fontSize: 20,
+          fontWeight: "bold",
+          padding: 15,
+          backgroundColor: "#7E57C2",
+          color: "#FFFFFF",
+          borderRadius: "10px",
         },
-        ...engineeringCourses[branch].map((career, i) => ({
-          id: `career-${i}`,
-          position: { x: i * 220, y: 150 },
-          data: { label: career },
-          style: {
-            fontSize: 16,
-            padding: 12,
-            backgroundColor: "#9575CD",
-            color: "#FFFFFF",
-            borderRadius: "8px",
-            cursor: "pointer",
-          },
-        })),
-      ];
+      },
+      ...engineeringCourses[branch].map((career, i) => ({
+        id: `career-${i}`,
+        position: { x: i * 220, y: 150 },
+        data: { label: career },
+        style: {
+          fontSize: 16,
+          padding: 12,
+          backgroundColor: "#9575CD",
+          color: "#FFFFFF",
+          borderRadius: "8px",
+          cursor: "pointer",
+        },
+      })),
+    ];
 
     const newEdges = engineeringCourses[branch].map((_, i) => ({
       id: `edge-${i}`,
@@ -401,11 +402,11 @@ function CareerPage() {
           <div style={{ margin: '32px auto 0 auto', maxWidth: 1200, width: '100%', display: 'flex', justifyContent: 'center' }}>
             <div style={{ padding: 28, borderRadius: 12, background: "#fff", boxShadow: "0 6px 18px rgba(0,0,0,0.06)", width: 600, maxWidth: '100%' }}>
               <h4 style={{ marginTop: 0, color: "#673AB7", textAlign: 'center' }}>Details</h4>
-              {!selectedCareer && (
+              {/*{!selectedCareer && (
                 <div style={{ color: "#616161", textAlign: 'center' }}>
                   Click a career node or card to view details here.
                 </div>
-              )}
+              )}*/}
               {selectedCareer && (
                 <>
                   <h3 style={{ margin: "6px 0", textAlign: 'center' }}>{selectedCareer.name}</h3>

@@ -2,6 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/LandingPage.css"; // reuse your landing styles or replace
+import 'reactflow/dist/style.css';
 
 export default function CareerOptions() {
   const navigate = useNavigate();

@@ -1,6 +1,7 @@
 // src/pages/QuizPage.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import 'reactflow/dist/style.css';
 
 function QuizPage() {
   const [course, setCourse] = useState("");
