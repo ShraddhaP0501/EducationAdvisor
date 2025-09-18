@@ -13,12 +13,18 @@ import mysql.connector
 import os
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
+from ai_recommendation import ai_bp
 
 # Load environment variables
 load_dotenv()
 
 # Flask setup
 app = Flask(__name__)
+# Register AI blueprint
+app.register_blueprint(ai_bp)
+
+if __name__ == "__main__":
+    app.run(debug=True)
 CORS(app, supports_credentials=True)
 
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")

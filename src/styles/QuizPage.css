@@ -1,0 +1,58 @@
+/* Page container for 10th/12th selection and 12th streams */
+.quiz-page-container {
+  max-width: 700px;
+  margin: 50px auto;
+  padding: 30px 20px;
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Heading for selection pages */
+.quiz-page-container h1,
+.quiz-page-container h2 {
+  margin-bottom: 25px;
+  color: #333;
+}
+
+/* Button group layout */
+.button-group {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Buttons for quiz selection and streams */
+.button-group button {
+  padding: 12px 25px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 2px solid #4caf50;
+  background-color: #fff;
+  color: #4caf50;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover effect for buttons */
+.button-group button:hover {
+  background-color: #4caf50;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Back button */
+.button-group button.back {
+  border-color: #f44336;
+  color: #f44336;
+}
+
+.button-group button.back:hover {
+  background-color: #f44336;
+  color: #fff;
+}
