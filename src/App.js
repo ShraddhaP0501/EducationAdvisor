@@ -45,6 +45,7 @@ function App() {
           <Route path="/career-selector" element={<CareerSelector />} /> {/* EDITED: added */}
 
           <Route path="/college" element={<CollegePage />} />
+
           <Route path="/dashboard" element={<Dashboard />} />
 
           {/* CLEANUP: removed duplicate "/" route (was duplicated before) */}

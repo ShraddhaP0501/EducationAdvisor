@@ -12,7 +12,7 @@ function LandingPage() {
 
 
   const handleGetStarted = () => {
-    navigate("/quiz"); // old quiz
+    navigate("/Signup"); // old quiz
   };
 
   // opens modal instead of directly navigating

@@ -1,6 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_jwt_extended import (
-    JWTManager, create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity,
+    verify_jwt_in_request,
 )
 from flask_cors import CORS
 from passlib.hash import pbkdf2_sha256
@@ -38,18 +42,17 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # MySQL connection helper
 def get_db_connection():
     return mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
-        port=DB_PORT
+        host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME, port=DB_PORT
     )
+
 
 # Middleware: inactivity check
 @app.before_request
@@ -62,13 +65,17 @@ def check_inactivity():
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT last_activity FROM user_sessions WHERE user_id=%s", (int(user_id),))
+        cursor.execute(
+            "SELECT last_activity FROM user_sessions WHERE user_id=%s", (int(user_id),)
+        )
         session = cursor.fetchone()
 
         if session:
             last_activity = session["last_activity"]
             if datetime.utcnow() - last_activity > INACTIVITY_LIMIT:
-                cursor.execute("DELETE FROM user_sessions WHERE user_id=%s", (int(user_id),))
+                cursor.execute(
+                    "DELETE FROM user_sessions WHERE user_id=%s", (int(user_id),)
+                )
                 conn.commit()
                 cursor.close()
                 conn.close()
@@ -77,7 +84,7 @@ def check_inactivity():
             # Update last activity
             cursor.execute(
                 "UPDATE user_sessions SET last_activity=%s WHERE user_id=%s",
-                (datetime.utcnow(), int(user_id))
+                (datetime.utcnow(), int(user_id)),
             )
             conn.commit()
 
@@ -85,6 +92,7 @@ def check_inactivity():
         conn.close()
     except Exception:
         return
+
 
 # Register route
 @app.route("/register", methods=["POST"])
@@ -106,15 +114,19 @@ def register():
     try:
         cursor.execute(
             "INSERT INTO users (full_name, email, birthday, standard, password_hash) VALUES (%s, %s, %s, %s, %s)",
-            (full_name, email, birthday, standard, password_hash)
+            (full_name, email, birthday, standard, password_hash),
         )
         conn.commit()
         return jsonify({"msg": "User registered successfully"}), 201
     except mysql.connector.Error as e:
-        return jsonify({"msg": "Email already exists or DB error", "error": str(e)}), 400
+        return (
+            jsonify({"msg": "Email already exists or DB error", "error": str(e)}),
+            400,
+        )
     finally:
         cursor.close()
         conn.close()
+
 
 # Login route
 @app.route("/login", methods=["POST"])
@@ -142,13 +154,14 @@ def login():
     # Save session
     cursor.execute(
         "INSERT INTO user_sessions (user_id, token, last_activity) VALUES (%s, %s, %s)",
-        (user["id"], access_token, datetime.utcnow())
+        (user["id"], access_token, datetime.utcnow()),
     )
     conn.commit()
     cursor.close()
     conn.close()
 
     return jsonify(access_token=access_token, user_id=user["id"]), 200
+
 
 # Profile route
 @app.route("/profile", methods=["GET"])
@@ -159,7 +172,7 @@ def profile():
     cursor = conn.cursor()
     cursor.execute(
         "SELECT id, full_name, email, birthday, standard, profile_photo FROM users WHERE id=%s",
-        (user_id,)
+        (user_id,),
     )
     user = cursor.fetchone()
     cursor.close()
@@ -174,9 +187,10 @@ def profile():
         "email": user[2],
         "birthday": user[3],
         "standard": user[4],
-        "profile_photo": user[5] if user[5] else None
+        "profile_photo": user[5] if user[5] else None,
     }
     return jsonify(user_data), 200
+
 
 # Logout route
 @app.route("/logout", methods=["POST"])
@@ -190,6 +204,7 @@ def logout():
     cursor.close()
     conn.close()
     return jsonify({"msg": "Logged out"}), 200
+
 
 # Upload photo route
 @app.route("/upload-photo", methods=["POST"])
@@ -211,7 +226,9 @@ def upload_photo():
         user_id = int(get_jwt_identity())
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("UPDATE users SET profile_photo=%s WHERE id=%s", (filename, user_id))
+        cursor.execute(
+            "UPDATE users SET profile_photo=%s WHERE id=%s", (filename, user_id)
+        )
         conn.commit()
         cursor.close()
         conn.close()
@@ -219,6 +236,7 @@ def upload_photo():
         return jsonify({"msg": "File uploaded successfully", "filename": filename}), 200
 
     return jsonify({"msg": "File type not allowed"}), 400
+
 
 if __name__ == "__main__":
     app.run(debug=True)

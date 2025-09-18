@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import '../styles/quiz.css'; // Make sure you have a CSS file for styling
 
@@ -8,7 +7,7 @@ const quizQuestions = [
         options: ["Maths and Science", "Business and Finance", "History and Literature"],
         answers: { "Maths and Science": "Science", "Business and Finance": "Commerce", "History and Literature": "Arts" }
     },
-    {
+    {// want to get AI based recommendations after the submission of this quiz to what i terests studemnts have 
         questionText: "Which of these activities sounds most appealing to you?",
         options: ["Conducting experiments and building models", "Managing a small business or planning an event", "Writing stories, painting, or debating"],
         answers: { "Conducting experiments and building models": "Science", "Managing a small business or planning an event": "Commerce", "Writing stories, painting, or debating": "Arts" }
@@ -52,7 +51,7 @@ const quizQuestions = [
         questionText: "Which academic discipline are you most curious about?",
         options: ["Physics and Chemistry", "Economics and Accountancy", "Sociology and Political Science"],
         answers: { "Physics and Chemistry": "Science", "Economics and Accountancy": "Commerce", "Sociology and Political Science": "Arts" }
-    }
+    },
 ];
 
 const guidance = {

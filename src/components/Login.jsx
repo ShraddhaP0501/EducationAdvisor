@@ -9,17 +9,11 @@ const Login = () => {
   const [error, setError] = useState("");
 
   // Update form state on input change
-// Removed duplicate declaration of formData
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Submit login form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -35,9 +29,8 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok && data.access_token) {
-        // Save token for protected routes
         localStorage.setItem("token", data.access_token);
-        localStorage.setItem("user_id", data.user_id); // optional
+        localStorage.setItem("user_id", data.user_id || "");
         navigate("/dashboard");
       } else {
         setError(data.msg || "Invalid email or password");
@@ -48,15 +41,6 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-
-    // Store selected class in localStorage
-    localStorage.setItem("standard", formData.standard);
-
-    console.log("User Logged In:", formData);
-    alert("Login Successful!");
-
-    // Navigate to dashboard (or home page)
-    navigate("/dashboard");
   };
 
   return (
@@ -92,22 +76,6 @@ const Login = () => {
 
         <button type="submit" className="Login-btn" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
-        </button>
-        <div className="form-group">
-          <label>Select Your Class</label>
-          <select
-            name="standard"
-            value={formData.standard}
-            onChange={handleChange}
-            required
-          >
-            <option value="10">10th</option>
-            <option value="12">12th</option>
-          </select>
-        </div>
-
-        <button type="submit" className="Login-btn">
-          Login
         </button>
       </form>
 
