@@ -1,5 +1,6 @@
 // src/pages/CareerSelector.js
 import React, { useState, useEffect } from "react";
+import 'reactflow/dist/style.css';
 
 /*
   How to use:
@@ -22,8 +23,8 @@ const COURSES = [
         { id: "diploma", title: "Polytechnic Diploma", img: "/images/careers/polytechnic.png", desc: "3-year engineering diplomas." }
       ],
       after12: [
-        { id: "eng", title: "Engineering (B.Tech)", img: "/images/careers/engineering.png", desc: "Engineering degrees (CSE/ECE/ME)"},
-        { id: "medical", title: "Medical (MBBS/BDS/Nursing)", img: "/images/careers/medical.png", desc: "Clinical & allied health professions."}
+        { id: "eng", title: "Engineering (B.Tech)", img: "/images/careers/engineering.png", desc: "Engineering degrees (CSE/ECE/ME)" },
+        { id: "medical", title: "Medical (MBBS/BDS/Nursing)", img: "/images/careers/medical.png", desc: "Clinical & allied health professions." }
       ]
     }
   },
@@ -37,8 +38,8 @@ const COURSES = [
         { id: "junior_clerk", title: "Junior Clerk / Office", img: "/images/careers/junior_clerk.png", desc: "Entry-level office roles & certificates." }
       ],
       after12: [
-        { id: "bcom", title: "B.Com / BBA", img: "/images/careers/bcom.png", desc: "Commerce & management degrees."},
-        { id: "ca", title: "Chartered Accountant (CA)", img: "/images/careers/ca.png", desc: "Professional accounting qualification."}
+        { id: "bcom", title: "B.Com / BBA", img: "/images/careers/bcom.png", desc: "Commerce & management degrees." },
+        { id: "ca", title: "Chartered Accountant (CA)", img: "/images/careers/ca.png", desc: "Professional accounting qualification." }
       ]
     }
   },
@@ -52,8 +53,8 @@ const COURSES = [
         { id: "diploma_design", title: "Design Diploma", img: "/images/careers/design.png", desc: "Short diplomas in design fields." }
       ],
       after12: [
-        { id: "ba", title: "BA", img: "/images/careers/ba.png", desc: "Bachelor of Arts in many subjects."},
-        { id: "law", title: "Law (5-yr integrated)", img: "/images/careers/law.png", desc: "Integrated law programs."}
+        { id: "ba", title: "BA", img: "/images/careers/ba.png", desc: "Bachelor of Arts in many subjects." },
+        { id: "law", title: "Law (5-yr integrated)", img: "/images/careers/law.png", desc: "Integrated law programs." }
       ]
     }
   }
