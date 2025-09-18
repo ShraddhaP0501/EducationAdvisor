@@ -10,10 +10,6 @@ import QuizPage from './pages/QuizPage';   // old quiz
 import CareerPage from './pages/CareerPage'; // ✅ new (was QuizPagee)
 import CollegePage from './pages/CollegePage';
 
-import QuizPage from './pages/QuizPage';
-import quiz from './components/quiz';
-
-
 import "./App.css";
 
 function App() {
