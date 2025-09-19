@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ReactFlow, MiniMap, Controls, Background } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-// Define job data for ALL courses
+// Define the jobs for ALL courses
 const jobsData = {
     botany: {
         jobs: [
@@ -11,7 +11,6 @@ const jobsData = {
             'Plant Scientist',
             'Ecologist'
         ],
-        courseNode: { id: '1', data: { label: 'Botany' }, position: { x: 250, y: 5 } },
     },
     zoology: {
         jobs: [
@@ -19,7 +18,6 @@ const jobsData = {
             'Wildlife Biologist',
             'Veterinarian'
         ],
-        courseNode: { id: '1', data: { label: 'Zoology' }, position: { x: 250, y: 5 } },
     },
     anatomy: {
         jobs: [
@@ -27,7 +25,6 @@ const jobsData = {
             'Forensic Scientist',
             'Physician'
         ],
-        courseNode: { id: '1', data: { label: 'Anatomy' }, position: { x: 250, y: 5 } },
     },
     microbiology: {
         jobs: [
@@ -35,7 +32,6 @@ const jobsData = {
             'Virologist',
             'Bacteriologist'
         ],
-        courseNode: { id: '1', data: { label: 'Microbiology' }, position: { x: 250, y: 5 } },
     },
     genetics: {
         jobs: [
@@ -43,7 +39,6 @@ const jobsData = {
             'Research Scientist',
             'Bioinformatician'
         ],
-        courseNode: { id: '1', data: { label: 'Genetics' }, position: { x: 250, y: 5 } },
     },
     calculus: {
         jobs: [
@@ -51,7 +46,6 @@ const jobsData = {
             'Financial Engineer',
             'Operations Research Analyst'
         ],
-        courseNode: { id: '1', data: { label: 'Calculus' }, position: { x: 250, y: 5 } },
     },
     algebra: {
         jobs: [
@@ -59,7 +53,6 @@ const jobsData = {
             'Mathematician',
             'Statistician'
         ],
-        courseNode: { id: '1', data: { label: 'Algebra' }, position: { x: 250, y: 5 } },
     },
     statistics: {
         jobs: [
@@ -67,7 +60,6 @@ const jobsData = {
             'Market Research Analyst',
             'Economist'
         ],
-        courseNode: { id: '1', data: { label: 'Statistics' }, position: { x: 250, y: 5 } },
     },
     geometry: {
         jobs: [
@@ -75,7 +67,6 @@ const jobsData = {
             'Urban Planner',
             'Civil Engineer'
         ],
-        courseNode: { id: '1', data: { label: 'Geometry' }, position: { x: 250, y: 5 } },
     },
     trigonometry: {
         jobs: [
@@ -83,7 +74,6 @@ const jobsData = {
             'Astronomer',
             'Aerospace Engineer'
         ],
-        courseNode: { id: '1', data: { label: 'Trigonometry' }, position: { x: 250, y: 5 } },
     },
     'computer-engineering': {
         jobs: [
@@ -93,7 +83,15 @@ const jobsData = {
             'Cybersecurity Specialist',
             'Full-Stack Developer'
         ],
-        courseNode: { id: '1', data: { label: 'Computer Engineering' }, position: { x: 250, y: 5 } },
+    },
+    // CORRECTED ENTRY
+    'business-studies': {
+        jobs: [
+            'Marketing Manager',
+            'HR Manager',
+            'Business Development Executive',
+            'Operations Manager'
+        ],
     },
     'financial-accounting': {
         jobs: [
@@ -101,7 +99,6 @@ const jobsData = {
             'Financial Analyst',
             'Auditor'
         ],
-        courseNode: { id: '1', data: { label: 'Financial Accounting' }, position: { x: 250, y: 5 } },
     },
     'cost-accounting': {
         jobs: [
@@ -109,7 +106,6 @@ const jobsData = {
             'Budget Manager',
             'Management Accountant'
         ],
-        courseNode: { id: '1', data: { label: 'Cost Accounting' }, position: { x: 250, y: 5 } },
     },
     marketing: {
         jobs: [
@@ -117,7 +113,6 @@ const jobsData = {
             'Digital Marketing Specialist',
             'Brand Manager'
         ],
-        courseNode: { id: '1', data: { label: 'Marketing' }, position: { x: 250, y: 5 } },
     },
     'human-resources': {
         jobs: [
@@ -125,7 +120,6 @@ const jobsData = {
             'Recruiter',
             'Training and Development Specialist'
         ],
-        courseNode: { id: '1', data: { label: 'Human Resources' }, position: { x: 250, y: 5 } },
     },
     'ancient-history': {
         jobs: [
@@ -133,7 +127,6 @@ const jobsData = {
             'Museum Curator',
             'Archivist'
         ],
-        courseNode: { id: '1', data: { label: 'Ancient History' }, position: { x: 250, y: 5 } },
     },
     'medieval-history': {
         jobs: [
@@ -141,7 +134,6 @@ const jobsData = {
             'Research Scholar',
             'Librarian'
         ],
-        courseNode: { id: '1', data: { label: 'Medieval History' }, position: { x: 250, y: 5 } },
     },
     'social-theory': {
         jobs: [
@@ -149,7 +141,6 @@ const jobsData = {
             'Social Worker',
             'Policy Analyst'
         ],
-        courseNode: { id: '1', data: { label: 'Social Theory' }, position: { x: 250, y: 5 } },
     },
     'urban-sociology': {
         jobs: [
@@ -157,7 +148,6 @@ const jobsData = {
             'Community Developer',
             'Geographer'
         ],
-        courseNode: { id: '1', data: { label: 'Urban Sociology' }, position: { x: 250, y: 5 } },
     },
 };
 
