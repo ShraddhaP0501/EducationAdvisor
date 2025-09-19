@@ -132,17 +132,18 @@ const Dashboard = () => {
 
       <div className="section">
         <h2>Career Recommendations</h2>
-        <p>[AI-generated suggestions will appear here]</p>
+        <p>Carrer Recomendations</p>
       </div>
 
       <div className="section">
         <h2>Nearby Colleges & Programs</h2>
-        <p>[Fetched from backend or static placeholder]</p>
+        <p>University of Jammu: Engineering</p>
+        <p>Government SPMR College of Commerce, Jammu: Commerce</p>
       </div>
 
       <div className="section">
         <h2>Opportunities & Alerts</h2>
-        <p>[Fetched from backend or static placeholder]</p>
+        <p>Scholarships Last Date: 28 Sept</p>
       </div>
     </div>
   );

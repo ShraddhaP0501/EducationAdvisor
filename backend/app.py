@@ -13,6 +13,7 @@ import mysql.connector
 import os
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
+from flask import send_from_directory
 
 # Load environment variables
 load_dotenv()
@@ -41,6 +42,10 @@ UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 def allowed_file(filename):
@@ -233,7 +238,10 @@ def upload_photo():
         cursor.close()
         conn.close()
 
-        return jsonify({"msg": "File uploaded successfully", "filename": filename}), 200
+        return jsonify({
+    "msg": "File uploaded successfully",
+    "filename": filename,
+}), 200
 
     return jsonify({"msg": "File type not allowed"}), 400
 

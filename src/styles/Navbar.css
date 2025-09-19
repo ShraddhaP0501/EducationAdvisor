@@ -54,3 +54,35 @@
   display: inline-block;
   text-align: center;
 }
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .logo {
+    margin-left: 0;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-links a,
+  .nav-links .active-link {
+    font-size: 1.1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .profile-circle {
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+}
