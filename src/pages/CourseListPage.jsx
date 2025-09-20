@@ -17,11 +17,27 @@ function CourseListPage() {
     return (
         <div className="container">
             <div className="breadcrumbs">
-                <Link to="/">Home</Link> &gt; <Link to={`/career/10th/${stream}`}>{stream.charAt(0).toUpperCase() + stream.slice(1)}</Link> &gt; {field.charAt(0).toUpperCase() + field.slice(1)}
+                <Link to="/">Home</Link> &gt;{" "}
+                <Link to={`/career/10th/${stream}`}>
+                    {stream.charAt(0).toUpperCase() + stream.slice(1)}
+                </Link>{" "}
+                &gt; {field.charAt(0).toUpperCase() + field.slice(1)}
             </div>
+
             <h1>Select a Course in {field.charAt(0).toUpperCase() + field.slice(1)}</h1>
             <p>Click on any course to view its related job opportunities.</p>
+
             <div className="button-group">
+                {/* Special case: Business Studies Flowchart */}
+                {field.toLowerCase() === 'business-studies' && (
+                    <Link
+                        to={`/career/10th/${stream}/${field}/jobs`}
+                        className="course-link"
+                    >
+                        <button>Business Studies (Flowchart)</button>
+                    </Link>
+                )}
+
                 {courses.map(course => (
                     <Link
                         to={`/career/10th/${stream}/${field}/${course.toLowerCase().replace(/\s/g, '-')}/jobs`}

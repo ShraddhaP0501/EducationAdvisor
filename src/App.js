@@ -10,11 +10,11 @@ import Login from "./components/Login";
 import QuizPage from "./pages/QuizPage";
 //import CareerPage from "./pages/CareerPage";
 import CollegePage from "./components/CollegePage";
-import CareerOptions from "./components/CareerOptions";
-import StreamSelectionPage from "./components/StreamSelectionPage";
-import FieldSelectorPage from "./components/FieldSelectorPage";
-import CourseListPage from "./components/CourseListPage";
-import JobsPage from "./components/JobsPage";
+import CareerOptions from "./pages/CareerOption";
+import StreamSelectionPage from "./pages/StreamSelectionPage";
+import FieldSelectorPage from "./pages/FieldSelectorPage";
+import CourseListPage from "./pages/CourseListPage";
+import JobsPage from "./pages/JobPage";
 
 /* =========================
    EDITED / NEW IMPORTS
@@ -58,7 +58,9 @@ function App() {
           <Route path="/career/10th" element={<StreamSelectionPage />} />
           <Route path="/career/10th/:stream" element={<FieldSelectorPage />} />
           <Route path="/career/10th/:stream/:field" element={<CourseListPage />} />
+          <Route path="/career/10th/:stream/:field/jobs" element={<JobsPage />} />
           <Route path="/career/10th/:stream/:field/:course/jobs" element={<JobsPage />} />
+
 
 
           {/* CLEANUP: removed duplicate "/" route (was duplicated before) */}
