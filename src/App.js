@@ -12,9 +12,7 @@ import QuizPage from "./pages/QuizPage";
 import CollegePage from "./components/CollegePage";
 import CareerOptions from "./pages/CareerOption";
 import StreamSelectionPage from "./pages/StreamSelectionPage";
-import FieldSelectorPage from "./pages/FieldSelectorPage";
-import CourseListPage from "./pages/CourseListPage";
-import JobsPage from "./pages/JobPage";
+import StreamFlowChartPage from "./pages/StreamFlowChartPage";
 
 /* =========================
    EDITED / NEW IMPORTS
@@ -52,14 +50,10 @@ function App() {
           <Route path="/college" element={<CollegePage />} />
 
           <Route path="/dashboard" element={<Dashboard />} />
-
-          {/*Career related Routes*/}
+          {/* Career Routes */}
           <Route path="/career" element={<CareerOptions />} />
           <Route path="/career/10th" element={<StreamSelectionPage />} />
-          <Route path="/career/10th/:stream" element={<FieldSelectorPage />} />
-          <Route path="/career/10th/:stream/:field" element={<CourseListPage />} />
-          <Route path="/career/10th/:stream/:field/jobs" element={<JobsPage />} />
-          <Route path="/career/10th/:stream/:field/:course/jobs" element={<JobsPage />} />
+          <Route path="/career/10th/:stream/chart" element={<StreamFlowChartPage />} />
 
 
 

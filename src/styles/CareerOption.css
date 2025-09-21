@@ -1,0 +1,92 @@
+/* Container styling */
+.career-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 1rem;
+    text-align: center;
+}
+
+/* Heading */
+.career-container h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+/* Subheading */
+.career-container p {
+    color: #4B5563;
+    /* gray-600 */
+    margin-bottom: 2.5rem;
+    font-size: 1rem;
+}
+
+/* Grid for cards */
+.career-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .career-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Career card */
+.career-card {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    height: 100%;
+}
+
+.career-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Card title */
+.career-card h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #6a0dad;
+    /* blue-600 */
+    margin-bottom: 0.75rem;
+}
+
+/* Card description */
+.career-card p {
+    color: #374151;
+    /* gray-700 */
+    flex-grow: 1;
+}
+
+/* Explore button */
+.career-card button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #6a0dad;
+    /* blue-600 */
+    color: #ffffff;
+    border: none;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s;
+}
+
+.career-card button:hover {
+    background-color: #364f94;
+    /* blue-700 */
+}
+
+.career-card-link {
+    text-decoration: none;
+    color: inherit;
+}

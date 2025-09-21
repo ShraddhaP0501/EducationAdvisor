@@ -6,13 +6,13 @@ function StreamSelectionPage() {
         <div className="container">
             <h1>Select a Stream After 10th</h1>
             <div className="button-group">
-                <Link to="/career/10th/science">
+                <Link to="/career/10th/science/chart">
                     <button>Science</button>
                 </Link>
-                <Link to="/career/10th/commerce">
+                <Link to="/career/10th/commerce/chart">
                     <button>Commerce</button>
                 </Link>
-                <Link to="/career/10th/arts">
+                <Link to="/career/10th/arts/chart">
                     <button>Arts</button>
                 </Link>
             </div>
@@ -20,4 +20,4 @@ function StreamSelectionPage() {
     );
 }
 
-export default StreamSelectionPage; 
+export default StreamSelectionPage;
