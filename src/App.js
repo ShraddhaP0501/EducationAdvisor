@@ -9,6 +9,7 @@ import Signup from "./components/Signup";
 import Login from "./components/Login";
 import QuizPage from "./pages/QuizPage";
 //import CareerPage from "./pages/CareerPage";
+import Quiz10th from "./components/Quiz10th"; // Quiz component
 import CollegePage from "./components/CollegePage";
 import CareerOptions from "./pages/CareerOption";
 import StreamSelectionPage from "./pages/StreamSelectionPage";
@@ -38,6 +39,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/quiz" element={<QuizPage />} />
+           <Route path="/quiz" element={<Quiz10th />} />
 
           {/* Career / Course flow */}
           {/* NOTE: keep both /career (detailed CareerPage) and the new selector pages */}

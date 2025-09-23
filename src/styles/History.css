@@ -1,0 +1,50 @@
+/* Page Layout */
+.history-page {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2c3e50;
+}
+
+/* Page Title */
+.history-page h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  background: linear-gradient(to right, #6a0dad, #4b0082);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 30px;
+}
+
+/* History List */
+.history-page ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.history-item {
+  background-color: #f8f4ff;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  font-size: 1rem;
+}
+
+/* Back to Dashboard Link */
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #6a0dad;
+  transition: 0.3s ease;
+}
+
+.back-link:hover {
+  color: #4b0082;
+  text-decoration: underline;
+}

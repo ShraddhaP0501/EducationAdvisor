@@ -1,129 +1,72 @@
-/* Base styles */
-body {
-    background-color: #FAFAFA;
-    font-family: 'Arial', sans-serif;
-    color: #212121;
-    margin: 0;
-    padding: 20px;
-}
-
-/* Container for the quiz */
 .quiz-container {
-    max-width: 700px;
-    margin: auto;
-    padding: 30px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(103, 58, 183, 0.1);
-}
-
-/* Quiz title */
-.quiz-container h2 {
-    text-align: center;
-    color: #673AB7;
-    margin-bottom: 30px;
-}
-
-/* Question block */
-.question {
-    margin-bottom: 30px;
-}
-
-/* Question text */
-.question p {
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-/* Answer option styles */
-label {
-    display: block;
-    margin-bottom: 10px;
-    cursor: pointer;
-    padding: 10px;
-    border: 1px solid #9575CD;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    background-color: #F3E5F5;
-}
-
-label:hover {
-    background-color: #EDE7F6;
-    border-color: #7E57C2;
-}
-
-input[type="radio"] {
-    margin-right: 10px;
-    accent-color: #7E57C2;
-}
-
-/* Submit and restart buttons */
-button {
-    background-color: #7E57C2;
-    color: #ffffff;
-    border: none;
-    padding: 12px 24px;
-    font-size: 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #673AB7;
-}
-
-/* Result display */
-.result-section {
-    text-align: center;
-    margin-top: 40px;
-}
-
-.result-section h3 {
-    color: #673AB7;
-    margin-bottom: 10px;
-}
-
-.result-section p {
-    font-size: 18px;
-    color: #212121;
-}
-
-/* Utility classes */
-.success {
-    color: #81C784;
-}
-
-.warning {
-    color: #FFB74D;
-}
-
-.error {
-    color: #E57373;
-}
-
-.secondary-text {
-    color: #616161;
-}
-/* Spinner styles */
-.spinner {
-  border: 8px solid #f3f3f3; /* Light gray */
-  border-top: 8px solid #4caf50; /* Green */
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
-  margin: 30px auto;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Optional: error message styling */
-.error {
-  color: red;
-  font-weight: bold;
+  max-width: 700px;
+  margin: auto;
+  padding: 20px;
   text-align: center;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.quiz-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #4b0082; /* Indigo */
+}
+
+.quiz-card {
+  background: #f3e8ff;
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.options {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.option-btn {
+  background: #6a0dad;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.option-btn:hover {
+  background: #4b0082;
+}
+
+.option-btn.selected {
+  background: #2e0854;
+}
+
+.start-btn, .submit-btn {
+  background: #4b0082;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 16px;
+}
+
+.start-btn:hover, .submit-btn:hover {
+  background: #6a0dad;
+}
+
+.result-box {
+  margin-top: 25px;
+  padding: 20px;
+  background: #e0c3fc;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #2c003e;
 }

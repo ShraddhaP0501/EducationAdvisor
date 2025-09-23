@@ -1,49 +1,51 @@
+/* Dashboard Wrapper */
 .dashboard {
   padding: 40px;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f4f4f9;
   max-width: 1000px;
   margin: 0 auto;
+  color: #2c3e50;
 }
 
-h1 {
+/* Dashboard Title */
+.dashboard-title {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  background: linear-gradient(to right, #6a0dad, #4b0082);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin-bottom: 30px;
-  color: #6a0dad;
-  font-size: 28px;
-  text-align: left;
 }
 
-/* Header with logout */
+/* Header with Logout */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .logout-btn {
-  background-color: #0072CE;
-  color: #ffffff;
+  background: linear-gradient(to right, #0072CE, #005bb5);
+  color: #fff;
   border: none;
   padding: 10px 20px;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-
 .logout-btn:hover {
-  background-color: #005bb5;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  background: #004494;
   transform: translateY(-2px);
 }
-
 .logout-btn:active {
-  background-color: #004494;
   transform: translateY(0);
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* Profile Card */
@@ -53,7 +55,7 @@ h1 {
   gap: 20px;
   padding: 20px;
   border: 2px solid #6a0dad;
-  border-radius: 10px;
+  border-radius: 12px;
   background-color: #f9f5ff;
   margin-bottom: 30px;
   align-items: center;
@@ -68,13 +70,11 @@ h1 {
   border: 3px solid #6a0dad;
   flex-shrink: 0;
 }
-
 .profile-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 .profile-placeholder {
   width: 100%;
   height: 100%;
@@ -85,38 +85,31 @@ h1 {
   font-weight: bold;
 }
 
-.profile-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .user-info {
   flex-grow: 1;
   text-align: left;
 }
-
 .user-info p {
   margin: 5px 0;
   font-size: 16px;
 }
 
-input[type="file"] {
-  margin-top: 10px;
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-
-button {
-  margin-top: 10px;
-  padding: 8px 15px;
-  background-color: #6a0dad;
+.profile-actions button {
+  background: #6a0dad;
   color: #fff;
   border: none;
-  border-radius: 5px;
+  padding: 8px 15px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: 0.3s;
 }
-
-button:hover {
-  background-color: #7b1fcf;
+.profile-actions button:hover {
+  background: #7b1fcf;
 }
 
 /* Section Cards */
@@ -125,8 +118,9 @@ button:hover {
   padding: 20px;
   background-color: #f3eaff;
   border: 1px solid #d1b3ff;
-  border-radius: 10px;
+  border-radius: 12px;
   text-align: left;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.05);
 }
 
 .section h2 {
@@ -134,10 +128,57 @@ button:hover {
   margin-bottom: 15px;
   font-size: 22px;
 }
-
 .section p {
   font-size: 15px;
   margin-top: 10px;
+}
+
+/* Career Results List */
+.results-list {
+  list-style: none;
+  padding-left: 0;
+}
+.result-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 1rem;
+}
+.more-results {
+  font-style: italic;
+  color: #777;
+  margin-top: 5px;
+}
+
+/* Buttons */
+.quiz-btn, 
+.toggle-history-btn {
+  background: linear-gradient(to right, #6a0dad, #4b0082);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: 0.3s ease;
+}
+.quiz-btn:hover,
+.toggle-history-btn:hover {
+  opacity: 0.9;
+}
+
+/* View History Link */
+.view-history-link {
+  display: inline-block;
+  margin-top: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #6a0dad;
+  transition: 0.3s ease;
+}
+.view-history-link:hover {
+  color: #4b0082;
+  text-decoration: underline;
 }
 
 /* Responsive */
@@ -146,29 +187,24 @@ button:hover {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .dashboard-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-
   .logout-btn {
-    padding: 8px 15px;
     font-size: 14px;
+    padding: 8px 15px;
   }
 }
-
 @media (max-width: 480px) {
   .dashboard {
     padding: 20px;
   }
-
-  h1 {
-    font-size: 24px;
+  .dashboard-title {
+    font-size: 1.6rem;
   }
-
   .section h2 {
-    font-size: 20px;
+    font-size: 18px;
   }
 }
