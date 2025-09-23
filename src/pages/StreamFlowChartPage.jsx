@@ -1,275 +1,215 @@
-import React, { useState, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ReactFlow, MiniMap, Controls, Background, useNodesState, useEdgesState } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
+// src/pages/StreamFlowChartPage.jsx
+import React, { useCallback, useState } from "react";
+import ReactFlow, {
+    MiniMap,
+    Controls,
+    Background,
+    useNodesState,
+    useEdgesState,
+    addEdge,
+} from "reactflow";
+import "reactflow/dist/style.css";
+import dagre from "dagre";
+import { useNavigate } from "react-router-dom";
 
-// =======================
-// JOBS DATA
-// =======================
-const jobsData = {
-    // 🔹 Biology Stream
-    'mbbs-(bachelor-of-medicine-and-bachelor-of-surgery)': {
-        jobs: ['Doctor', 'Surgeon', 'Medical Researcher', 'Public Health Specialist']
-    },
-    'bds-(dental-surgery)': {
-        jobs: ['Dentist', 'Dental Surgeon', 'Orthodontist']
-    },
-    'bams-(ayurvedic-medicine)': {
-        jobs: ['Ayurvedic Doctor', 'Researcher', 'Healthcare Consultant']
-    },
-    'bhms-(homeopathy)': {
-        jobs: ['Homeopathy Doctor', 'Alternative Medicine Specialist']
-    },
-    'bums-(unani-medicine)': {
-        jobs: ['Unani Doctor', 'Alternative Medicine Practitioner']
-    },
-    'b.sc.-nursing': {
-        jobs: ['Nurse', 'Healthcare Administrator', 'Clinical Instructor']
-    },
-    'bpt-(physiotherapy)': {
-        jobs: ['Physiotherapist', 'Rehabilitation Specialist']
-    },
-    'b.-pharma-(pharmacy)': {
-        jobs: ['Pharmacist', 'Drug Inspector', 'Pharmaceutical Scientist']
-    },
+// DAGRE layout
+const nodeWidth = 180;
+const nodeHeight = 60;
 
-    // 🔹 Maths / Science Stream
-    'b.tech-/-be-(engineering-–-all-branches:-computer,-mechanical,-civil,-electrical,-ai,-it,-etc.)': {
-        jobs: ['Software Engineer', 'Civil Engineer', 'Mechanical Engineer', 'AI Engineer']
-    },
-    'b.arch-(architecture)': {
-        jobs: ['Architect', 'Urban Planner', 'Interior Designer']
-    },
-    'bca-(computer-applications)': {
-        jobs: ['Software Developer', 'System Analyst', 'IT Consultant']
-    },
-    'b.sc.-computer-science-/-it': {
-        jobs: ['Data Scientist', 'Software Engineer', 'Cybersecurity Analyst']
-    },
-    'b.sc.-data-science-/-artificial-intelligence': {
-        jobs: ['Data Scientist', 'AI Engineer', 'Machine Learning Specialist']
-    },
-    'b.sc.-mathematics-/-statistics': {
-        jobs: ['Statistician', 'Actuary', 'Data Analyst']
-    },
-    'b.sc.-aviation-/-aeronautics-/-aerospace': {
-        jobs: ['Pilot', 'Aerospace Engineer', 'Air Traffic Controller']
-    },
+const getLayoutedElements = (nodes, edges, direction = "LR") => {
+    const isHorizontal = direction === "LR";
+    const dagreGraph = new dagre.graphlib.Graph();
+    dagreGraph.setDefaultEdgeLabel(() => ({}));
+    dagreGraph.setGraph({ rankdir: direction, ranksep: 80, nodesep: 50 });
 
-    // 🔹 Commerce Stream
-    'b.com-(general-/-hons)': {
-        jobs: ['Accountant', 'Financial Analyst', 'Business Consultant']
-    },
-    'bba-(bachelor-of-business-administration)': {
-        jobs: ['Business Manager', 'HR Manager', 'Marketing Executive']
-    },
-    'bms-(bachelor-of-management-studies)': {
-        jobs: ['Operations Manager', 'Business Analyst', 'Project Manager']
-    },
-    'baf-(accounting-&-finance)': {
-        jobs: ['Auditor', 'Financial Planner', 'Tax Consultant']
-    },
-    'bfm-(financial-markets)': {
-        jobs: ['Stock Broker', 'Investment Banker', 'Portfolio Manager']
-    },
-    'b.sc.-economics': {
-        jobs: ['Economist', 'Policy Analyst', 'Financial Consultant']
-    },
-    'bachelor-of-economics-(be)': {
-        jobs: ['Economist', 'Research Analyst', 'Market Analyst']
-    },
-    'bca-(commerce-eligible)': {
-        jobs: ['Software Developer', 'Database Administrator']
-    },
-    'hotel-management-(bhm)': {
-        jobs: ['Hotel Manager', 'Chef', 'Event Manager']
-    },
+    nodes.forEach((node) => dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight }));
+    edges.forEach((edge) => dagreGraph.setEdge(edge.source, edge.target));
 
-    // 🔹 Arts Stream
-    'ba-(bachelor-of-arts)-–-general-/-hons-(subjects:-english,-history,-political-science,-sociology,-etc.)': {
-        jobs: ['Teacher', 'Writer', 'Civil Services Officer', 'Researcher']
-    },
-    'bfa-(fine-arts)': {
-        jobs: ['Artist', 'Graphic Designer', 'Animator']
-    },
-    'bjmc-(journalism-&-mass-communication)': {
-        jobs: ['Journalist', 'News Anchor', 'Media Manager']
-    },
-    'bsw-(social-work)': {
-        jobs: ['Social Worker', 'NGO Manager', 'Community Development Officer']
-    },
-    'b.ed-(integrated)': {
-        jobs: ['Teacher', 'Educational Consultant']
-    },
-    'ba-psychology-/-economics-/-geography': {
-        jobs: ['Psychologist', 'Economist', 'Geographer']
-    },
-    'ba-llb-(integrated-law)': {
-        jobs: ['Lawyer', 'Legal Advisor', 'Corporate Counsel']
-    }
-};
+    dagre.layout(dagreGraph);
 
-// =======================
-// STREAM STRUCTURE DATA
-// =======================
-const streamStructure = {
-    science: {
-        Biology: [
-            'MBBS (Bachelor of Medicine and Bachelor of Surgery)',
-            'BDS (Dental Surgery)',
-            'BAMS (Ayurvedic Medicine)',
-            'BHMS (Homeopathy)',
-            'BUMS (Unani Medicine)',
-            'B.Sc. Nursing',
-            'BPT (Physiotherapy)',
-            'B. Pharma (Pharmacy)',
-        ],
-        Maths: [
-            'B.Tech / BE (Engineering – all branches: Computer, Mechanical, Civil, Electrical, AI, IT, etc.)',
-            'B.Arch (Architecture)',
-            'BCA (Computer Applications)',
-            'B.Sc. Computer Science / IT',
-            'B.Sc. Data Science / Artificial Intelligence',
-            'B.Sc. Mathematics / Statistics',
-            'B.Sc. Aviation / Aeronautics / Aerospace'
-        ],
-    },
-    commerce: {
-        Core: [
-            'B.Com (General / Hons)',
-            'BBA (Bachelor of Business Administration)',
-            'BMS (Bachelor of Management Studies)',
-            'BAF (Accounting & Finance)',
-            'BFM (Financial Markets)',
-            'B.Sc. Economics',
-            'Bachelor of Economics (BE)',
-            'BCA (Computer Applications – some colleges allow commerce students)',
-            'Hotel Management (BHM)'
-        ]
-    },
-    arts: {
-        Core: [
-            'BA (Bachelor of Arts) – General / Hons (Subjects: English, History, Political Science, Sociology, etc.)',
-            'BFA (Fine Arts)',
-            'BJMC (Journalism & Mass Communication)',
-            'BSW (Social Work)',
-            'B.Ed (Integrated)',
-            'BA Psychology / Economics / Geography',
-            'BA LLB (Integrated Law)'
-        ]
-    },
-};
-
-// =======================
-// REACT COMPONENT
-// =======================
-function StreamFlowChartPage() {
-    const { stream } = useParams();
-    const structure = streamStructure[stream.toLowerCase()] || {};
-
-    const initialNodes = [];
-    const initialEdges = [];
-
-    // Root node (Stream)
-    initialNodes.push({
-        id: `root`,
-        type: 'input',
-        data: { label: stream.charAt(0).toUpperCase() + stream.slice(1) },
-        position: { x: 200, y: 0 }
+    nodes.forEach((node) => {
+        const nodeWithPosition = dagreGraph.node(node.id);
+        node.targetPosition = isHorizontal ? "left" : "top";
+        node.sourcePosition = isHorizontal ? "right" : "bottom";
+        node.position = {
+            x: nodeWithPosition.x - nodeWidth / 2,
+            y: nodeWithPosition.y - nodeHeight / 2,
+        };
     });
 
-    // Fields and Courses
-    let verticalOffset = 200; // Starting Y position for the first course
+    return { nodes, edges };
+};
 
-    Object.entries(structure).forEach(([field, courses], fieldIndex) => {
-        const fieldId = `field-${fieldIndex}`;
+// STREAM → SUBSTREAM → COURSES → JOBS DATA
+const streamsData = {
+    Science: {
+        Maths: {
+            "B.Tech": ["Software Engineer", "AI Engineer"],
+            "B.Arch": ["Architect", "Urban Planner"],
+        },
+        Biology: {
+            MBBS: ["Doctor", "Surgeon"],
+            BDS: ["Dentist", "Dental Surgeon"],
+        },
+    },
+    Commerce: {
+        "B.Com": ["Accountant", "Financial Analyst"],
+        BBA: ["Business Analyst", "HR Manager"],
+    },
+    Arts: {
+        BA: ["Teacher", "Content Writer"],
+        BFA: ["Artist", "Designer"],
+    },
+};
 
-        // Position the field node vertically
-        initialNodes.push({
-            id: fieldId,
-            data: { label: field },
-            position: { x: 200, y: verticalOffset - 100 } // Position the field above its courses
+// Function to generate nodes & edges for a selected stream
+const generateFlowForStream = (streamName) => {
+    let nodes = [];
+    let edges = [];
+    let id = 1;
+
+    const streamId = `stream-${id++}`;
+    nodes.push({
+        id: streamId,
+        data: { label: streamName },
+        position: { x: 0, y: 0 },
+        style: { background: "#90cdf4", padding: 10, borderRadius: 8 },
+    });
+
+    const streamData = streamsData[streamName];
+
+    // If Science, it has substreams (Maths, Biology)
+    if (streamName === "Science") {
+        Object.entries(streamData).forEach(([substream, courses]) => {
+            const substreamId = `sub-${id++}`;
+            nodes.push({
+                id: substreamId,
+                data: { label: substream },
+                position: { x: 0, y: 0 },
+                style: { background: "#63b3ed", padding: 10, borderRadius: 8 },
+            });
+            edges.push({ id: `edge-${streamId}-${substreamId}`, source: streamId, target: substreamId });
+
+            Object.entries(courses).forEach(([course, jobs]) => {
+                const courseId = `course-${id++}`;
+                nodes.push({
+                    id: courseId,
+                    data: { label: course },
+                    position: { x: 0, y: 0 },
+                    style: { background: "#fbd38d", padding: 10, borderRadius: 8 },
+                });
+                edges.push({ id: `edge-${substreamId}-${courseId}`, source: substreamId, target: courseId });
+
+                jobs.forEach((job) => {
+                    const jobId = `job-${id++}`;
+                    nodes.push({
+                        id: jobId,
+                        data: { label: job },
+                        position: { x: 0, y: 0 },
+                        style: { background: "#9ae6b4", padding: 10, borderRadius: 8 },
+                    });
+                    edges.push({ id: `edge-${courseId}-${jobId}`, source: courseId, target: jobId });
+                });
+            });
         });
-        initialEdges.push({ id: `e-root-${fieldId}`, source: 'root', target: fieldId, animated: true });
-
-        courses.forEach((course, courseIndex) => {
-            const courseId = `course-${fieldIndex}-${courseIndex}`;
-            initialNodes.push({
+    } else {
+        // Other streams without substreams
+        Object.entries(streamData).forEach(([course, jobs]) => {
+            const courseId = `course-${id++}`;
+            nodes.push({
                 id: courseId,
                 data: { label: course },
-                // Courses are all aligned on the same vertical line (x = 200)
-                position: { x: 200, y: verticalOffset }
+                position: { x: 0, y: 0 },
+                style: { background: "#fbd38d", padding: 10, borderRadius: 8 },
             });
-            initialEdges.push({ id: `e-${fieldId}-${courseId}`, source: fieldId, target: courseId, animated: true });
+            edges.push({ id: `edge-${streamId}-${courseId}`, source: streamId, target: courseId });
 
-            verticalOffset += 100; // Increment the vertical position for the next course
+            if (Array.isArray(jobs)) {
+                jobs.forEach((job) => {
+                    const jobId = `job-${id++}`;
+                    nodes.push({
+                        id: jobId,
+                        data: { label: job },
+                        position: { x: 0, y: 0 },
+                        style: { background: "#9ae6b4", padding: 10, borderRadius: 8 },
+                    });
+                    edges.push({ id: `edge-${courseId}-${jobId}`, source: courseId, target: jobId });
+                });
+            }
         });
-    });
+    }
 
+    return getLayoutedElements(nodes, edges, "LR");
+};
+
+export default function StreamFlowChartPage() {
+    const navigate = useNavigate();
+    const [selectedStream, setSelectedStream] = useState("Science");
+
+    const { nodes: initialNodes, edges: initialEdges } = generateFlowForStream(selectedStream);
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-    const [expandedCourses, setExpandedCourses] = useState({});
 
-    const onNodeClick = useCallback(
-        (event, node) => {
-            if (node.id.startsWith('course-')) {
-                const courseLabel = node.data.label;
-                const jobKey = courseLabel.toLowerCase().replace(/\s/g, '-');
+    const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
-                if (jobsData[jobKey] && !expandedCourses[node.id]) {
-                    const newNodes = [...nodes];
-                    const newEdges = [...edges];
-                    const jobs = jobsData[jobKey].jobs;
-
-                    jobs.forEach((job, jobIndex) => {
-                        const jobId = `${node.id}-job-${jobIndex}`;
-                        newNodes.push({
-                            id: jobId,
-                            data: { label: job },
-                            // Jobs are placed in a column to the right of the course node
-                            position: { x: node.position.x + 300, y: node.position.y + jobIndex * 60 },
-                        });
-                        newEdges.push({
-                            id: `e-${node.id}-${jobId}`,
-                            source: node.id,
-                            target: jobId,
-                            animated: true,
-                        });
-                    });
-
-                    setNodes(newNodes);
-                    setEdges(newEdges);
-                    setExpandedCourses(prev => ({ ...prev, [node.id]: true }));
-                }
-            }
-        },
-        [nodes, edges, expandedCourses, setNodes, setEdges]
-    );
+    const handleStreamChange = (stream) => {
+        const { nodes: newNodes, edges: newEdges } = generateFlowForStream(stream);
+        setNodes(newNodes);
+        setEdges(newEdges);
+        setSelectedStream(stream);
+    };
 
     return (
-        <div className="container" style={{ height: '900px', width: '100%' }}>
-            <div className="breadcrumbs">
-                <Link to="/">Home</Link> &gt; {stream.charAt(0).toUpperCase() + stream.slice(1)} Chart
-            </div>
+        <div style={{ height: "100vh", width: "100%" }}>
+            <div style={{ position: "absolute", zIndex: 10, margin: 10 }}>
+                <button
+                    onClick={() => navigate("/career")}
+                    style={{
+                        marginRight: 10,
+                        padding: "8px 16px",
+                        background: "#3182ce",
+                        color: "white",
+                        border: "none",
+                        borderRadius: 8,
+                        cursor: "pointer",
+                    }}
+                >
+                    ← Back to Career
+                </button>
 
-            <h1>{stream.charAt(0).toUpperCase() + stream.slice(1)} Career Flowchart</h1>
-            <p>Click on a course to see the related job opportunities.</p>
+                {Object.keys(streamsData).map((stream) => (
+                    <button
+                        key={stream}
+                        onClick={() => handleStreamChange(stream)}
+                        style={{
+                            marginRight: 5,
+                            padding: "6px 12px",
+                            background: selectedStream === stream ? "#2b6cb0" : "#63b3ed",
+                            color: "white",
+                            border: "none",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                        }}
+                    >
+                        {stream}
+                    </button>
+                ))}
+            </div>
 
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
-                onNodeClick={onNodeClick}
+                onConnect={onConnect}
                 fitView
+                minZoom={0.1}
+                maxZoom={2}
             >
-                <MiniMap />
+                <MiniMap nodeStrokeColor={(n) => n.style?.background || "#eee"} />
                 <Controls />
-                <Background variant="dots" gap={12} size={1} />
+                <Background />
             </ReactFlow>
         </div>
     );
 }
-
-export default StreamFlowChartPage;
-
