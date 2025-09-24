@@ -1,0 +1,49 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: #2d3748;
+    /* dark gray */
+    font-weight: bold;
+}
+
+.button-group {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.button-group a {
+    text-decoration: none;
+    /* remove underline */
+}
+
+.button-group button {
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    background: #6a0dad;
+    /* purple */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.button-group button:hover {
+    background: #4b0082;
+    /* darker purple */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
