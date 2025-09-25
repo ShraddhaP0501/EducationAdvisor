@@ -141,51 +141,70 @@ const Dashboard = () => {
       </div>
 
       {/* Career Recommendations */}
-      <div className="section">
-        <h2>Career Recommendations</h2>
-        {user.results && user.results.length > 0 ? (
-          <>
-            <p className="latest-suggestion">
-              <strong>Latest Suggestion:</strong> {user.results[0].suggestion}
-            </p>
+<div className="section">
+  <h2>Career Recommendations</h2>
 
-            <button
-              className="toggle-history-btn"
-              onClick={() => setShowHistory(!showHistory)}
-            >
-              {showHistory ? "Hide Past Results" : "Show Past Results"}
-            </button>
-
-            {showHistory && (
-              <ul className="results-list">
-                {user.results.slice(1, 6).map((res, index) => (
-                  <li key={index} className="result-item">
-                    <strong>{new Date(res.created_at).toLocaleDateString()}:</strong>{" "}
-                    {res.suggestion}
-                  </li>
-                ))}
-                {user.results.length > 6 && (
-                  <li className="more-results">
-                    ...and {user.results.length - 6} more
-                  </li>
-                )}
-              </ul>
-            )}
-
-            {user.results.length > 6 && (
-              <Link to="/history" className="view-history-link">
-                View Full History →
-              </Link>
-            )}
-          </>
-        ) : (
-          <p>No recommendations yet. Take the quiz!</p>
-        )}
-
-        <button className="quiz-btn" onClick={() => navigate("/quiz")}>
-          Take Career Quiz
-        </button>
+  {user.results && user.results.length > 0 ? (
+    <>
+      {/* Latest Results by Quiz Type */}
+      <div className="latest-suggestions">
+        <p className="latest-suggestion">
+          <strong>Latest (10th):</strong>{" "}
+          {user.results.find(r => r.quiz_type === "10th")?.suggestion || "Not attempted yet"}
+        </p>
+        <p className="latest-suggestion">
+          <strong>Latest (12th-Maths):</strong>{" "}
+          {user.results.find(r => r.quiz_type === "12th-maths")?.suggestion || "Not attempted yet"}
+        </p>
       </div>
+
+      <button
+        className="toggle-history-btn"
+        onClick={() => setShowHistory(!showHistory)}
+      >
+        {showHistory ? "Hide Past Results" : "Show Past Results"}
+      </button>
+
+      {/* Past Results Grouped by Quiz Type */}
+      {showHistory && (
+        <div className="results-history">
+          <h3>10th Quiz History</h3>
+          <ul className="results-list">
+            {user.results
+              .filter(r => r.quiz_type === "10th")
+              .slice(0, 5)
+              .map((res, index) => (
+                <li key={`10th-${index}`} className="result-item">
+                  <strong>{new Date(res.created_at).toLocaleDateString()}:</strong>{" "}
+                  {res.suggestion}
+                </li>
+              ))}
+          </ul>
+
+          <h3>12th-Maths Quiz History</h3>
+          <ul className="results-list">
+            {user.results
+              .filter(r => r.quiz_type === "12th-maths")
+              .slice(0, 5)
+              .map((res, index) => (
+                <li key={`12th-${index}`} className="result-item">
+                  <strong>{new Date(res.created_at).toLocaleDateString()}:</strong>{" "}
+                  {res.suggestion}
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
+    </>
+  ) : (
+    <p>No recommendations yet. Take the quiz!</p>
+  )}
+
+  <button className="quiz-btn" onClick={() => navigate("/quiz")}>
+    Take Career Quiz
+  </button>
+</div>
+
 
       {/* Colleges */}
       <div className="section">
