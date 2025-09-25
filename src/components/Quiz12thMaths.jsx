@@ -1,18 +1,22 @@
 import React, { useState } from "react";
 import "../styles/quiz.css";
 
-function Quiz10th() {
+function Quiz12thMaths() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [answers, setAnswers] = useState({});
-  const [result, setResult] = useState({ suggestion: "", reason: "" });
+  const [result, setResult] = useState({
+    primary_suggestion: "",
+    primary_reason: "",
+    alternate_suggestions: [],
+  });
 
   // Fetch quiz from backend
   const fetchQuiz = async () => {
     setLoading(true);
-    setResult({ suggestion: "", reason: "" });
+    setResult({ primary_suggestion: "", primary_reason: "", alternate_suggestions: [] });
     try {
-      const response = await fetch("http://localhost:5000/generate-quiz");
+      const response = await fetch("http://localhost:5000/generate-quiz-12maths");
       const data = await response.json();
       setQuestions(data.questions || []);
     } catch (error) {
@@ -31,37 +35,48 @@ function Quiz10th() {
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setResult({ suggestion: "You are not logged in", reason: "" });
+      setResult({ primary_suggestion: "You are not logged in", primary_reason: "", alternate_suggestions: [] });
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:5000/evaluate-quiz", {
+      const response = await fetch("http://localhost:5000/evaluate-quiz-12maths", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`, // Send JWT
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({ answers }),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        const errData = await response.json();
-        setResult({ suggestion: errData.suggestion || "Failed to evaluate quiz", reason: "" });
+        setResult({
+          primary_suggestion: data.primary_suggestion || "Failed to evaluate quiz",
+          primary_reason: data.primary_reason || "",
+          alternate_suggestions: data.alternate_suggestions || [],
+        });
         return;
       }
 
-      const data = await response.json();
-      setResult({ suggestion: data.suggestion || "", reason: data.reason || "" });
+      setResult({
+        primary_suggestion: data.primary_suggestion || "",
+        primary_reason: data.primary_reason || "",
+        alternate_suggestions: data.alternate_suggestions || [],
+      });
     } catch (error) {
       console.error("Error submitting quiz:", error);
-      setResult({ suggestion: "Failed to evaluate quiz", reason: "" });
+      setResult({
+        primary_suggestion: "Failed to evaluate quiz",
+        primary_reason: "",
+        alternate_suggestions: [],
+      });
     }
   };
 
   return (
     <div className="quiz-container">
-      <h1 className="quiz-title">Career Aptitude Quiz</h1>
+      <h1 className="quiz-title">Career Quiz for 12th Science (Maths) Students</h1>
 
       {/* Start Quiz button */}
       {questions.length === 0 && !loading && (
@@ -100,14 +115,27 @@ function Quiz10th() {
       )}
 
       {/* Result display */}
-      {result.suggestion && (
+      {result.primary_suggestion && (
         <div className="result-box">
-          <h2>Suggested Stream: {result.suggestion}</h2>
-          {result.reason && <p>Reason: {result.reason}</p>}
+          <h2>Suggested Path: {result.primary_suggestion}</h2>
+          {result.primary_reason && <p>Reason: {result.primary_reason}</p>}
+
+          {result.alternate_suggestions && result.alternate_suggestions.length > 0 && (
+            <div className="alternatives">
+              <h3>Other Possible Options:</h3>
+              <ul>
+                {result.alternate_suggestions.map((alt, i) => (
+                  <li key={i}>
+                    {alt.career} {alt.reason ? `- ${alt.reason}` : ""}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-export default Quiz10th;
+export default Quiz12thMaths;

@@ -8,38 +8,12 @@ import { useNavigate } from "react-router-dom";
 function LandingPage() {
   const navigate = useNavigate();
 
-  const [showTierModal, setShowTierModal] = useState(false);
+  //const [showTierModal, setShowTierModal] = useState(false);
 
 
   const handleGetStarted = () => {
     navigate("/Signup"); // old quiz
   };
-
-  // opens modal instead of directly navigating
-  const handleCourseMapping = () => {
-    setShowTierModal(true);
-  };
-
-  // user chooses a tier; navigate to CareerPage and pass tier in state
-  const handleChooseTier = (tier) => {
-    setShowTierModal(false);
-    // navigate to /career and pass tier as state (CareerPage can read location.state.tier)
-    navigate("/career", { state: { tier } });
-  };
-
-  const closeModal = () => {
-    setShowTierModal(false);
-  };
-
-  // close modal with ESC key
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === "Escape") closeModal();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
   return (
     <div className="landing-page">
       {/* Hero Section */}
@@ -66,7 +40,6 @@ function LandingPage() {
           <Card
             title="Course to Career Mapping"
             description="See visual paths from courses to government jobs, private careers, and higher studies."
-            onClick={handleCourseMapping}
           />
           <Card
             title="Nearby Colleges"
@@ -78,56 +51,6 @@ function LandingPage() {
           />
         </div>
       </section>
-
-      {/* Tier selection modal */}
-      {showTierModal && (
-        <div
-          className="tier-modal-overlay"
-          onClick={closeModal}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className="tier-modal"
-            onClick={(e) => e.stopPropagation()}
-            aria-labelledby="tier-modal-title"
-          >
-            <div className="tier-modal-header">
-              <h3 id="tier-modal-title">Choose your path</h3>
-              <button
-                className="tier-modal-close"
-                aria-label="Close"
-                onClick={closeModal}
-              >
-                ✕
-              </button>
-            </div>
-
-            <p className="tier-modal-sub">
-              Do you want career options after 10th or after 12th? (You can choose
-              and then select a course on the next screen.)
-            </p>
-
-            <div className="tier-modal-actions">
-              <Button
-                text="Career after 10th"
-                onClick={() => handleChooseTier("after10")}
-              />
-              <Button
-                text="Career after 12th"
-                onClick={() => handleChooseTier("after12")}
-              />
-            </div>
-
-            <div className="tier-modal-footer">
-              <small>
-                Tip: If you're unsure, choose "after 12th" to see advanced
-                pathways — you can still explore vocational options later.
-              </small>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

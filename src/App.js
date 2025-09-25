@@ -8,16 +8,25 @@ import Dashboard from "./pages/Dashboard";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import QuizPage from "./pages/QuizPage";
-import CareerPage from "./pages/CareerPage";
-import CollegePage from "./pages/CollegePage";
+//import CareerPage from "./pages/CareerPage";
+import Quiz10th from "./components/Quiz10th"; // Quiz component
+import CollegePage from "./components/CollegePage";
+import CareerOptions from "./pages/CareerOption";
+import StreamSelectionPage from "./pages/StreamSelectionPage";
+import StreamFlowChartPage from "./pages/StreamFlowChartPage";
 
 /* =========================
    EDITED / NEW IMPORTS
    - Added imports for the new pages that were missing previously:
      CareerOptions, After10th, After12th
    ========================= */
+<<<<<<< HEAD
 import CareerOptions from "./pages/CareerOptions"; // EDITED: added
 import CareerSelector from "./pages/CareerSelector"; // EDITED: added
+=======
+//import CareerOptions from "./pages/CareerOptions"; // EDITED: added
+//import CareerSelector from "./pages/CareerSelector"; // EDITED: added
+>>>>>>> 6e28e80a591abc1076defc314016fdb156b979bd
 
 import "./App.css";
 
@@ -35,18 +44,28 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/quiz" element={<QuizPage />} />
+           <Route path="/quiz" element={<Quiz10th />} />
 
           {/* Career / Course flow */}
           {/* NOTE: keep both /career (detailed CareerPage) and the new selector pages */}
-          <Route path="/career" element={<CareerPage />} />
+          {/* <Route path="/career" element={<CareerPage />} />
 
           {/* EDITED: new flow pages for tier selection and tier-specific options */}
-          <Route path="/career-options" element={<CareerOptions />} />   {/* EDITED: added */}
-          <Route path="/career-selector" element={<CareerSelector />} /> {/* EDITED: added */}
+          {/*<Route path="/career-options" element={<CareerOptions />} />    EDITED: added */}
+          {/* <Route path="/career-selector" element={<CareerSelector />} /> EDITED: added */}
 
           <Route path="/college" element={<CollegePage />} />
 
           <Route path="/dashboard" element={<Dashboard />} />
+<<<<<<< HEAD
+=======
+          {/* Career Routes */}
+          <Route path="/career" element={<CareerOptions />} />
+          <Route path="/career/10th" element={<StreamSelectionPage />} />
+          <Route path="/career/10th/:stream/chart" element={<StreamFlowChartPage />} />
+
+
+>>>>>>> 6e28e80a591abc1076defc314016fdb156b979bd
 
           {/* CLEANUP: removed duplicate "/" route (was duplicated before) */}
         </Routes>

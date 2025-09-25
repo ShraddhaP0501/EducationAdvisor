@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import "../styles/Dashboard.css";
-import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -8,8 +8,9 @@ const Dashboard = () => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showHistory, setShowHistory] = useState(false);
 
-  // Fetch user profile on component mount
+  // Fetch user profile + quiz results
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -29,13 +30,21 @@ const Dashboard = () => {
 
         if (response.ok) {
           const data = await response.json();
-          // If backend returns filename, prepend uploads path
+
+          // fetch results separately
+          const resultsRes = await fetch("http://localhost:5000/user-quiz-results", {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` },
+          });
+          const resultsData = await resultsRes.json();
+          data.results = resultsData.results || [];
+
           if (data.profile_photo && !data.profile_photo.startsWith("http")) {
             data.profile_photo = `http://localhost:5000/uploads/${data.profile_photo}`;
           }
+
           setUser(data);
         } else if (response.status === 401) {
-          // Token invalid or expired
           localStorage.removeItem("token");
           navigate("/login");
         } else {
@@ -105,10 +114,11 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>Welcome, {user.full_name}!</h1>
+        <h1>Welcome, {user.full_name} 👋</h1>
         <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </div>
 
+      {/* Profile Card */}
       <div className="profile-card">
         <div className="photo-wrapper">
           {user.profile_photo ? (
@@ -130,19 +140,83 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="section">
-        <h2>Career Recommendations</h2>
-        <p>[AI-generated suggestions will appear here]</p>
+      {/* Career Recommendations */}
+<div className="section">
+  <h2>Career Recommendations</h2>
+
+  {user.results && user.results.length > 0 ? (
+    <>
+      {/* Latest Results by Quiz Type */}
+      <div className="latest-suggestions">
+        <p className="latest-suggestion">
+          <strong>Latest (10th):</strong>{" "}
+          {user.results.find(r => r.quiz_type === "10th")?.suggestion || "Not attempted yet"}
+        </p>
+        <p className="latest-suggestion">
+          <strong>Latest (12th-Maths):</strong>{" "}
+          {user.results.find(r => r.quiz_type === "12th-maths")?.suggestion || "Not attempted yet"}
+        </p>
       </div>
 
+      <button
+        className="toggle-history-btn"
+        onClick={() => setShowHistory(!showHistory)}
+      >
+        {showHistory ? "Hide Past Results" : "Show Past Results"}
+      </button>
+
+      {/* Past Results Grouped by Quiz Type */}
+      {showHistory && (
+        <div className="results-history">
+          <h3>10th Quiz History</h3>
+          <ul className="results-list">
+            {user.results
+              .filter(r => r.quiz_type === "10th")
+              .slice(0, 5)
+              .map((res, index) => (
+                <li key={`10th-${index}`} className="result-item">
+                  <strong>{new Date(res.created_at).toLocaleDateString()}:</strong>{" "}
+                  {res.suggestion}
+                </li>
+              ))}
+          </ul>
+
+          <h3>12th-Maths Quiz History</h3>
+          <ul className="results-list">
+            {user.results
+              .filter(r => r.quiz_type === "12th-maths")
+              .slice(0, 5)
+              .map((res, index) => (
+                <li key={`12th-${index}`} className="result-item">
+                  <strong>{new Date(res.created_at).toLocaleDateString()}:</strong>{" "}
+                  {res.suggestion}
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
+    </>
+  ) : (
+    <p>No recommendations yet. Take the quiz!</p>
+  )}
+
+  <button className="quiz-btn" onClick={() => navigate("/quiz")}>
+    Take Career Quiz
+  </button>
+</div>
+
+
+      {/* Colleges */}
       <div className="section">
         <h2>Nearby Colleges & Programs</h2>
-        <p>[Fetched from backend or static placeholder]</p>
+        <p>University of Jammu: Engineering</p>
+        <p>Government SPMR College of Commerce, Jammu: Commerce</p>
       </div>
 
+      {/* Opportunities */}
       <div className="section">
         <h2>Opportunities & Alerts</h2>
-        <p>[Fetched from backend or static placeholder]</p>
+        <p>Scholarships Last Date: 28 Sept</p>
       </div>
     </div>
   );

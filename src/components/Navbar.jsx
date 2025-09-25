@@ -14,7 +14,7 @@ function Navbar() {
           <a href="#features">Features</a>
         </li>
         <li>
-          <a href="#colleges">Colleges</a>
+          <a href="/college">Colleges</a>
         </li>
         <li>
           <NavLink to="/career" className={({ isActive }) => isActive ? "active-link" : ""}>Careers</NavLink>
