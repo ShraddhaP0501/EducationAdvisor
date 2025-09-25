@@ -324,9 +324,10 @@ Return the result as JSON in this format:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO quiz_results (user_id, answers, suggestion) VALUES (%s, %s, %s)",
-            (user_id, json.dumps(answers), suggestion)
+        "INSERT INTO quiz_results (user_id, answers, suggestion, quiz_type) VALUES (%s, %s, %s, %s)",
+        (user_id, json.dumps(answers), suggestion, "10th")
         )
+
         conn.commit()
         cursor.close()
         conn.close()
@@ -336,22 +337,227 @@ Return the result as JSON in this format:
     except Exception as e:
         print("Error in /evaluate-quiz:", e)
         return jsonify({"suggestion": "Failed to evaluate quiz", "reason": ""}), 500
+    
+
+
+    # ------------------- Quiz for 12th Science (Maths) -------------------
+
+@app.route("/generate-quiz-12maths", methods=["GET"])
+def generate_quiz_12maths():
+    try:
+        model = genai.GenerativeModel("models/gemini-1.5-flash-latest")
+
+        prompt = """Generate 10 multiple-choice career guidance questions 
+        for 12th standard Indian students with Science-Maths (PCM) background
+        who are unsure about their career options. Include all possible options:
+
+        - Engineering branches: Mechanical, Civil, Computer Science, Electrical, AI/ML, Data Science, Aerospace, Mechatronics, Robotics, Biotechnology
+        - Computer Science / BCA / IT
+        - B.Sc Physics, Maths, Chemistry, IT
+        - Data Science / AI / Actuarial Science
+        - Architecture / Design
+        - Aviation / Pilot / Aerospace
+        - Defense / Armed Forces
+        - Management / BBA / Business
+        - Government Services
+        - Other Science Degrees (labs, teaching, applied sciences)
+
+        Instructions for questions:
+        1. Questions should explore student's interests in problem-solving, coding, analytical thinking, creativity, design, leadership, practical skills, risk-taking, and future goals.
+        2. Each question must have 4 situational options (do NOT use direct degree names).
+        3. Ensure questions allow mapping to **both primary and alternate career paths**.
+
+        Return ONLY valid JSON in this format:
+
+        {{
+            "questions": [
+                {{
+                    "question": "string",
+                    "options": ["situation 1", "situation 2", "situation 3", "situation 4"]
+                }}
+            ]
+        }}"""
+
+        response = model.generate_content(prompt)
+        raw_text = response.text.strip()
+
+        # Remove markdown code block markers if present
+        raw_text = raw_text.replace("```json", "").replace("```", "").strip()
+
+        # Parse JSON safely
+        try:
+            data = json.loads(raw_text)
+            questions = data.get("questions", [])
+        except json.JSONDecodeError as e:
+            print("Failed to parse quiz JSON:", e)
+            questions = []
+
+        # Validate questions
+        valid_questions = []
+        for q in questions:
+            if isinstance(q, dict) and "question" in q and "options" in q:
+                if isinstance(q["options"], list) and len(q["options"]) == 4:
+                    valid_questions.append(q)
+
+        return jsonify({"questions": valid_questions})
+
+    except Exception as e:
+        print("Error generating quiz 12maths:", e)
+        return jsonify({"questions": []})
+
+
+@app.route("/evaluate-quiz-12maths", methods=["POST"])
+@jwt_required()
+def evaluate_quiz_12maths():
+    try:
+        user_id = get_jwt_identity()
+        answers = request.json.get("answers", {})
+
+        prompt = f"""
+You are a career advisor. Based on the student's situational answers:
+
+{answers}
+
+Map their interests to the most appropriate career/degree. Consider the following paths:
+
+- Engineering (Mechanical, Civil, Computer Science, Electrical, AI/ML, Data Science, Aerospace, Mechatronics, Robotics, Biotechnology)
+- Computer Science / BCA / IT
+- B.Sc Physics, Maths, Chemistry, IT
+- Data Science / AI / Actuarial Science
+- Architecture / Design
+- Aviation / Pilot / Aerospace
+- Defense / Armed Forces
+- Management / BBA / Business
+- Government Services
+- Other Science Degrees (labs, teaching, applied sciences)
+
+Rules for suggestion:
+1. Suggest **one primary career/degree** based on strongest interests.
+2. Suggest **2–3 alternate options** if the student's interests are close to multiple paths.
+3. Include **short reasons** for both primary and alternates (1–2 sentences each).
+
+Return ONLY valid JSON in this format:
+{{
+    "primary_suggestion": "string",
+    "primary_reason": "string",
+    "alternate_suggestions": [
+        {{
+            "career": "string",
+            "reason": "string"
+        }}
+    ]
+}}
+"""
+
+        model = genai.GenerativeModel("models/gemini-1.5-flash-latest")
+        response = model.generate_content(prompt)
+        raw_text = response.text.strip()
+
+        # Extract JSON block if model adds extra text
+        import re
+        match = re.search(r"\{.*\}", raw_text, re.DOTALL)
+        if match:
+            raw_text = match.group(0)
+
+        # Parse JSON safely
+        try:
+            data = json.loads(raw_text)
+        except json.JSONDecodeError as e:
+            print("JSON parsing error:", e)
+            print("Response causing error:", raw_text)
+            return jsonify({
+                "primary_suggestion": "Failed to evaluate quiz",
+                "primary_reason": "",
+                "alternate_suggestions": []
+            }), 500
+
+        primary_suggestion = data.get("primary_suggestion", "Unknown")
+        primary_reason = data.get("primary_reason", "")
+        alternate_suggestions = data.get("alternate_suggestions", [])
+
+        # Ensure alternate_suggestions is a list
+        if not isinstance(alternate_suggestions, list):
+            alternate_suggestions = []
+
+        # Store in DB
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO quiz_results 
+            (user_id, answers, suggestion, primary_reason, alternate_suggestions, quiz_type) 
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            (
+                user_id,
+                json.dumps(answers),
+                primary_suggestion,
+                primary_reason,
+                json.dumps(alternate_suggestions),  # store as JSON string
+                "12th-maths"
+            )
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "primary_suggestion": primary_suggestion,
+            "primary_reason": primary_reason,
+            "alternate_suggestions": alternate_suggestions
+        })
+
+    except Exception as e:
+        print("Error in /evaluate-quiz-12maths:", e)
+        return jsonify({
+            "primary_suggestion": "Failed to evaluate quiz",
+            "primary_reason": "",
+            "alternate_suggestions": []
+        }), 500
+
+
 
 
 @app.route("/user-quiz-results", methods=["GET"])
 @jwt_required()
 def get_user_quiz_results():
-    user_id = get_jwt_identity()
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute(
-        "SELECT suggestion, created_at FROM quiz_results WHERE user_id=%s ORDER BY created_at DESC",
-        (user_id,)
-    )
-    results = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return jsonify({"results": results})
+    try:
+        user_id = get_jwt_identity()
+        quiz_type = request.args.get("quiz_type")  # optional filter: '10th' or '12th-maths'
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        if quiz_type:
+            cursor.execute(
+                "SELECT suggestion, primary_reason, alternate_suggestions, quiz_type, created_at FROM quiz_results WHERE user_id=%s AND quiz_type=%s ORDER BY created_at DESC",
+                (user_id, quiz_type)
+            )
+        else:
+            cursor.execute(
+                "SELECT suggestion, primary_reason, alternate_suggestions, quiz_type, created_at FROM quiz_results WHERE user_id=%s ORDER BY created_at DESC",
+                (user_id,)
+            )
+
+        results = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        # Convert JSON string to Python objects for alternate_suggestions if needed
+        for r in results:
+            if r.get("alternate_suggestions"):
+                try:
+                    r["alternate_suggestions"] = json.loads(r["alternate_suggestions"])
+                except Exception:
+                    r["alternate_suggestions"] = []
+
+        return jsonify({"results": results})
+
+    except Exception as e:
+        print("Error in /user-quiz-results:", e)
+        return jsonify({"results": []}), 500
+
+
 
 # ------------------- Run App -------------------
 if __name__ == "__main__":

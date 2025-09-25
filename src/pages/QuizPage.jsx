@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Quiz10th from "../components/Quiz10th";
-import Quiz12Maths from "../components/QuizScience"; // Maths quiz
+import Quiz12Maths from "../components/Quiz12thMaths"; // Maths quiz
 //import Quiz12Bio from "../components/QuizBiology";   // Biology quiz
 import Quiz12Commerce from "../components/QuizCommerce";
 import Quiz12Arts from "../components/QuizArts";
