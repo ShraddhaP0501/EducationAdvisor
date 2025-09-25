@@ -1,6 +1,9 @@
 // src/pages/CollegePage.js
 import React from "react";
 import { useParams } from "react-router-dom";
+import ReactFlow, { MiniMap, Controls, Background } from "reactflow";
+import "reactflow/dist/style.css";
+
 
 function CollegePage() {
   const { course, career } = useParams();
