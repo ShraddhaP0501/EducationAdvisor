@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Quiz10th from "../components/Quiz10th";
 import Quiz12Maths from "../components/Quiz12thMaths"; // Maths quiz
-//import Quiz12Bio from "../components/QuizBiology";   // Biology quiz
+import Quiz12Bio from "../components/Quiz12thBiology";   // Biology quiz
 import Quiz12Commerce from "../components/QuizCommerce";
 import Quiz12Arts from "../components/QuizArts";
 import "../styles/QuizPage.css";
@@ -44,7 +44,7 @@ const QuizPage = () => {
       description:
         "Studying Biology in 11th-12th? Confused about NEET, Medical, or other career paths? Take this quiz to understand your strengths and the best next steps in your academic journey.",
       icon: "🧬",
-      //component: //<Quiz12Bio />,
+      component: <Quiz12Bio />,
     },
     {
       id: "12thCommerce",

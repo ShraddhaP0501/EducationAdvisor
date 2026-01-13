@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "../styles/quiz.css";
 
-function QuizArts() {
+function Quiz12thBiology() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [answers, setAnswers] = useState({});
@@ -11,7 +11,7 @@ function QuizArts() {
     alternate_suggestions: [],
   });
 
-  // Fetch quiz
+  // Fetch quiz from backend
   const fetchQuiz = async () => {
     setLoading(true);
     setResult({
@@ -22,7 +22,7 @@ function QuizArts() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/generate-quiz-arts"
+        "http://localhost:5000/generate-quiz-12biology"
       );
       const data = await response.json();
       setQuestions(data.questions || []);
@@ -34,12 +34,12 @@ function QuizArts() {
     setLoading(false);
   };
 
-  // Record answer
+  // Record selected answer
   const handleAnswer = (qIndex, option) => {
     setAnswers({ ...answers, [qIndex]: option });
   };
 
-  // Submit quiz
+  // Submit answers
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -53,7 +53,7 @@ function QuizArts() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/evaluate-quiz-arts",
+        "http://localhost:5000/evaluate-quiz-12biology",
         {
           method: "POST",
           headers: {
@@ -94,7 +94,7 @@ function QuizArts() {
   return (
     <div className="quiz-container">
       <h1 className="quiz-title">
-        Career Quiz for Arts / Humanities Students
+        Career Quiz for 12th Science (Biology) Students
       </h1>
 
       {questions.length === 0 && !loading && (
@@ -157,4 +157,4 @@ function QuizArts() {
   );
 }
 
-export default QuizArts;
+export default Quiz12thBiology;
