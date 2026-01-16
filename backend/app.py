@@ -225,11 +225,11 @@ def upload_photo():
 
     return jsonify({"msg": "File type not allowed"}), 400
 
-# ------------------- Quiz -------------------
+# ------------------- Quiz 10TH -------------------
 @app.route("/generate-quiz", methods=["GET"])
 def generate_quiz():
     try:
-        model = genai.GenerativeModel("models/gemini-1.5-flash-latest")
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
 
         prompt = """Generate 10 multiple-choice career aptitude questions 
         for 10th grade Indian students who are unsure about their future stream.
@@ -281,10 +281,18 @@ def generate_quiz():
 def evaluate_quiz_route():
     try:
         user_id = get_jwt_identity()
-        answers = request.json.get("answers", {})
 
-        # Construct a rule-based prompt
-        prompt = f"""
+        # ---- SAFE JSON READ ----
+        data = request.get_json(silent=True) or {}
+        answers = data.get("answers", {})
+
+        if not answers:
+            return jsonify({
+                "suggestion": "Please answer the quiz questions first",
+                "reason": ""
+            }), 400
+
+        prompt =f"""
 You are a career advisor. Based on the student's selected situational options:
 
 {answers}
@@ -304,39 +312,53 @@ Return the result as JSON in this format:
 }}
 """
 
-        model = genai.GenerativeModel("models/gemini-1.5-flash-latest")
+        # ---- GEMINI CALL ----
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
         response = model.generate_content(prompt)
         raw_text = response.text.strip()
 
-        # Remove code blocks if present
-        raw_text = raw_text.replace("```json", "").replace("```", "").strip()
+        # ---- SAFE JSON EXTRACTION ----
+        import re
+        match = re.search(r"\{[\s\S]*\}", raw_text)
+        if not match:
+            raise ValueError("No JSON returned from Gemini")
 
-        # Parse safely
-        try:
-            data = json.loads(raw_text)
-            suggestion = data.get("suggestion", "Unknown")
-            reason = data.get("reason", "")
-        except json.JSONDecodeError:
-            suggestion = "Unknown"
-            reason = ""
+        result_data = json.loads(match.group(0))
 
-        # Store in DB
+        suggestion = result_data.get("suggestion", "Unknown")
+        reason = result_data.get("reason", "")
+
+        # ---- DB SAVE ----
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-        "INSERT INTO quiz_results (user_id, answers, suggestion, quiz_type) VALUES (%s, %s, %s, %s)",
-        (user_id, json.dumps(answers), suggestion, "10th")
+            """
+            INSERT INTO quiz_results (user_id, answers, suggestion, quiz_type)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (
+                user_id,
+                json.dumps(answers),
+                suggestion,
+                "10th"
+            )
         )
-
         conn.commit()
         cursor.close()
         conn.close()
 
-        return jsonify({"suggestion": suggestion, "reason": reason})
+        return jsonify({
+            "suggestion": suggestion,
+            "reason": reason
+        })
 
     except Exception as e:
-        print("Error in /evaluate-quiz:", e)
-        return jsonify({"suggestion": "Failed to evaluate quiz", "reason": ""}), 500
+        print("❌ Error in /evaluate-quiz:", e)
+        return jsonify({
+            "suggestion": "Server error while evaluating quiz",
+            "reason": ""
+        }), 500
+
     
 
 
@@ -345,7 +367,7 @@ Return the result as JSON in this format:
 @app.route("/generate-quiz-12maths", methods=["GET"])
 def generate_quiz_12maths():
     try:
-        model = genai.GenerativeModel("models/gemini-1.5-flash-latest")
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
 
         prompt = """Generate 10 multiple-choice career guidance questions 
         for 12th standard Indian students with Science-Maths (PCM) background
@@ -411,14 +433,24 @@ def generate_quiz_12maths():
 def evaluate_quiz_12maths():
     try:
         user_id = get_jwt_identity()
-        answers = request.json.get("answers", {})
+
+        # ---- SAFE JSON READ ----
+        data = request.get_json(silent=True) or {}
+        answers = data.get("answers", {})
+
+        if not answers:
+            return jsonify({
+                "primary_suggestion": "Please answer the quiz questions first",
+                "primary_reason": "",
+                "alternate_suggestions": []
+            }), 400
 
         prompt = f"""
 You are a career advisor. Based on the student's situational answers:
 
 {answers}
 
-Map their interests to the most appropriate career/degree. Consider the following paths:
+Map their interests to the most appropriate career/degree. Consider:
 
 - Engineering (Mechanical, Civil, Computer Science, Electrical, AI/ML, Data Science, Aerospace, Mechatronics, Robotics, Biotechnology)
 - Computer Science / BCA / IT
@@ -431,61 +463,48 @@ Map their interests to the most appropriate career/degree. Consider the followin
 - Government Services
 - Other Science Degrees (labs, teaching, applied sciences)
 
-Rules for suggestion:
-1. Suggest **one primary career/degree** based on strongest interests.
-2. Suggest **2–3 alternate options** if the student's interests are close to multiple paths.
-3. Include **short reasons** for both primary and alternates (1–2 sentences each).
+Rules:
+1. Suggest ONE primary career path.
+2. Suggest 2–3 alternate paths if applicable.
+3. Provide short reasons (1–2 sentences).
 
-Return ONLY valid JSON in this format:
+Return ONLY valid JSON:
 {{
-    "primary_suggestion": "string",
-    "primary_reason": "string",
-    "alternate_suggestions": [
-        {{
-            "career": "string",
-            "reason": "string"
-        }}
-    ]
+  "primary_suggestion": "string",
+  "primary_reason": "string",
+  "alternate_suggestions": [
+    {{ "career": "string", "reason": "string" }}
+  ]
 }}
 """
 
-        model = genai.GenerativeModel("models/gemini-1.5-flash-latest")
+        # ---- GEMINI CALL ----
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
         response = model.generate_content(prompt)
         raw_text = response.text.strip()
 
-        # Extract JSON block if model adds extra text
+        # ---- SAFE JSON EXTRACTION ----
         import re
-        match = re.search(r"\{.*\}", raw_text, re.DOTALL)
-        if match:
-            raw_text = match.group(0)
+        match = re.search(r"\{[\s\S]*\}", raw_text)
+        if not match:
+            raise ValueError("No valid JSON returned from Gemini")
 
-        # Parse JSON safely
-        try:
-            data = json.loads(raw_text)
-        except json.JSONDecodeError as e:
-            print("JSON parsing error:", e)
-            print("Response causing error:", raw_text)
-            return jsonify({
-                "primary_suggestion": "Failed to evaluate quiz",
-                "primary_reason": "",
-                "alternate_suggestions": []
-            }), 500
+        result_data = json.loads(match.group(0))
 
-        primary_suggestion = data.get("primary_suggestion", "Unknown")
-        primary_reason = data.get("primary_reason", "")
-        alternate_suggestions = data.get("alternate_suggestions", [])
+        primary_suggestion = result_data.get("primary_suggestion", "")
+        primary_reason = result_data.get("primary_reason", "")
+        alternate_suggestions = result_data.get("alternate_suggestions", [])
 
-        # Ensure alternate_suggestions is a list
         if not isinstance(alternate_suggestions, list):
             alternate_suggestions = []
 
-        # Store in DB
+        # ---- DB SAVE ----
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO quiz_results 
-            (user_id, answers, suggestion, primary_reason, alternate_suggestions, quiz_type) 
+            INSERT INTO quiz_results
+            (user_id, answers, suggestion, primary_reason, alternate_suggestions, quiz_type)
             VALUES (%s, %s, %s, %s, %s, %s)
             """,
             (
@@ -493,7 +512,7 @@ Return ONLY valid JSON in this format:
                 json.dumps(answers),
                 primary_suggestion,
                 primary_reason,
-                json.dumps(alternate_suggestions),  # store as JSON string
+                json.dumps(alternate_suggestions),
                 "12th-maths"
             )
         )
@@ -508,14 +527,511 @@ Return ONLY valid JSON in this format:
         })
 
     except Exception as e:
-        print("Error in /evaluate-quiz-12maths:", e)
+        print("❌ Error in /evaluate-quiz-12maths:", e)
+        return jsonify({
+            "primary_suggestion": "Server error while evaluating quiz",
+            "primary_reason": "",
+            "alternate_suggestions": []
+        }), 500
+
+
+    # ------------------- Quiz for 12th Science (Biology) -------------------
+
+@app.route("/generate-quiz-12biology", methods=["GET"])
+def generate_quiz_12biology():
+    try:
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
+
+        prompt = """Generate 10 multiple-choice career guidance questions 
+        for 12th standard Indian students with Science-Biology (PCB) background
+        who are unsure about their career options. Include all possible options:
+
+        - MBBS / BDS / AYUSH
+        - Nursing / Paramedical
+        - Biotechnology / Biomedical Science
+        - B.Sc Biology / Microbiology / Zoology / Botany
+        - Pharmacy
+        - Public Health / Hospital Administration
+        - Research / Teaching
+        - Veterinary Science
+        - Environmental Science / Life Sciences
+        - Government & Competitive Exams (NEET-based roles)
+
+        Instructions:
+        1. Questions should assess interest in patient care, lab work, research, field work, memorization, social service, and long-term study commitment.
+        2. Each question must have exactly 4 situational options.
+        3. Do NOT mention degree names directly in options.
+
+        Return ONLY valid JSON in this format:
+
+        {
+            "questions": [
+                {
+                    "question": "string",
+                    "options": ["option1", "option2", "option3", "option4"]
+                }
+            ]
+        }
+        """
+
+        response = model.generate_content(prompt)
+        raw_text = response.text.strip()
+        raw_text = raw_text.replace("```json", "").replace("```", "").strip()
+
+        try:
+            data = json.loads(raw_text)
+            questions = data.get("questions", [])
+        except json.JSONDecodeError:
+            questions = []
+
+        valid_questions = []
+        for q in questions:
+            if isinstance(q, dict) and "question" in q and "options" in q:
+                if isinstance(q["options"], list) and len(q["options"]) == 4:
+                    valid_questions.append(q)
+
+        return jsonify({"questions": valid_questions})
+
+    except Exception as e:
+        print("Error generating quiz 12biology:", e)
+        return jsonify({"questions": []})
+    
+
+@app.route("/evaluate-quiz-12biology", methods=["POST"])
+@jwt_required()
+def evaluate_quiz_12biology():
+    try:
+        user_id = get_jwt_identity()
+
+        # ---- SAFE JSON READ ----
+        data = request.get_json(silent=True) or {}
+        answers = data.get("answers", {})
+
+        if not answers:
+            return jsonify({
+                "primary_suggestion": "Please answer the quiz questions first",
+                "primary_reason": "",
+                "alternate_suggestions": []
+            }), 400
+
+        prompt = f"""
+You are a career advisor. Based on the student's situational answers:
+
+{answers}
+
+Consider Biology-based career paths:
+- MBBS / BDS / AYUSH
+- Nursing / Paramedical
+- Pharmacy
+- Biotechnology / Biomedical Science
+- B.Sc Biology / Microbiology / Zoology / Botany
+- Research / Teaching
+- Veterinary Science
+- Public Health / Hospital Administration
+- Environmental & Life Sciences
+- Government & Competitive Exams
+
+Rules:
+1. Suggest ONE primary career path.
+2. Suggest 2–3 alternate paths if applicable.
+3. Provide short reasons (1–2 sentences).
+
+Return ONLY valid JSON:
+{{
+  "primary_suggestion": "string",
+  "primary_reason": "string",
+  "alternate_suggestions": [
+    {{ "career": "string", "reason": "string" }}
+  ]
+}}
+"""
+
+        # ---- GEMINI CALL ----
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
+        response = model.generate_content(prompt)
+        raw_text = response.text.strip()
+
+        # ---- SAFE JSON EXTRACTION ----
+        import re
+        match = re.search(r"\{[\s\S]*\}", raw_text)
+        if not match:
+            raise ValueError("No valid JSON returned from Gemini")
+
+        result_data = json.loads(match.group(0))
+
+        primary_suggestion = result_data.get("primary_suggestion", "")
+        primary_reason = result_data.get("primary_reason", "")
+        alternate_suggestions = result_data.get("alternate_suggestions", [])
+
+        if not isinstance(alternate_suggestions, list):
+            alternate_suggestions = []
+
+        # ---- DB SAVE ----
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO quiz_results
+            (user_id, answers, suggestion, primary_reason, alternate_suggestions, quiz_type)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            (
+                user_id,
+                json.dumps(answers),
+                primary_suggestion,
+                primary_reason,
+                json.dumps(alternate_suggestions),
+                "12th-biology"
+            )
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "primary_suggestion": primary_suggestion,
+            "primary_reason": primary_reason,
+            "alternate_suggestions": alternate_suggestions
+        })
+
+    except Exception as e:
+        print("❌ Error in /evaluate-quiz-12biology:", e)
+        return jsonify({
+            "primary_suggestion": "Server error while evaluating quiz",
+            "primary_reason": "",
+            "alternate_suggestions": []
+        }), 500
+
+
+# ------------------- Quiz for ARTS -------------------
+
+@app.route("/generate-quiz-arts", methods=["GET"])
+def generate_quiz_arts():
+    try:
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
+
+        prompt = """Generate 10 multiple-choice career guidance questions 
+        for Indian students from Arts / Humanities background 
+        who are unsure about career options.
+
+        Cover paths like:
+        - BA (Psychology, Sociology, History, Political Science, Economics)
+        - Law
+        - Journalism / Mass Communication
+        - Design / Fine Arts / Performing Arts
+        - Civil Services / Government Exams
+        - Teaching / Academia
+        - Social Work / NGO / Public Policy
+        - Content Writing / Media / Digital Marketing
+        - Management / BBA
+        - Creative & Liberal Arts careers
+
+        Instructions:
+        1. Questions should assess creativity, communication, analytical thinking,
+           leadership, social awareness, public speaking, writing, and research interest.
+        2. Each question must have exactly 4 situational options.
+        3. Do NOT mention degree names directly in options.
+
+        Return ONLY valid JSON:
+        {
+          "questions": [
+            {
+              "question": "string",
+              "options": ["option1", "option2", "option3", "option4"]
+            }
+          ]
+        }
+        """
+
+        response = model.generate_content(prompt)
+        raw_text = response.text.strip()
+        raw_text = raw_text.replace("```json", "").replace("```", "").strip()
+
+        try:
+            data = json.loads(raw_text)
+            questions = data.get("questions", [])
+        except json.JSONDecodeError:
+            questions = []
+
+        valid_questions = []
+        for q in questions:
+            if isinstance(q, dict) and "question" in q and "options" in q:
+                if isinstance(q["options"], list) and len(q["options"]) == 4:
+                    valid_questions.append(q)
+
+        return jsonify({"questions": valid_questions})
+
+    except Exception as e:
+        print("Error generating quiz arts:", e)
+        return jsonify({"questions": []})
+    
+@app.route("/evaluate-quiz-arts", methods=["POST"])
+@jwt_required()
+def evaluate_quiz_arts():
+    try:
+        user_id = get_jwt_identity()
+
+        # ---- SAFE JSON READ ----
+        data = request.get_json(silent=True) or {}
+        answers = data.get("answers", {})
+
+        if not answers:
+            return jsonify({
+                "primary_suggestion": "Please answer the quiz questions first",
+                "primary_reason": "",
+                "alternate_suggestions": []
+            }), 400
+
+        prompt = f"""
+You are a career advisor. Based on the student's answers:
+
+{answers}
+
+Consider these Arts/Humanities career paths:
+- Psychology / Sociology / Humanities
+- Law
+- Journalism / Mass Communication
+- Design / Fine & Performing Arts
+- Teaching / Academia
+- Civil Services / Government Exams
+- Social Work / NGOs / Public Policy
+- Content Writing / Media / Digital Marketing
+- Management / BBA
+- Liberal Arts & Creative careers
+
+Rules:
+1. Suggest ONE primary career path.
+2. Suggest 2–3 alternate paths if suitable.
+3. Give short reasons (1–2 sentences).
+
+Return ONLY valid JSON:
+{
+  "primary_suggestion": "string",
+  "primary_reason": "string",
+  "alternate_suggestions": [
+    { "career": "string", "reason": "string" }
+  ]
+}
+"""
+
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
+        response = model.generate_content(prompt)
+        raw_text = response.text.strip()
+
+        import re
+        match = re.search(r"\{.*\}", raw_text, re.DOTALL)
+        if match:
+            raw_text = match.group(0)
+
+        try:
+            data = json.loads(raw_text)
+        except json.JSONDecodeError:
+            return jsonify({
+                "primary_suggestion": "Failed to evaluate quiz",
+                "primary_reason": "",
+                "alternate_suggestions": []
+            }), 500
+
+        primary_suggestion = data.get("primary_suggestion", "")
+        primary_reason = data.get("primary_reason", "")
+        alternate_suggestions = data.get("alternate_suggestions", [])
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO quiz_results
+            (user_id, answers, suggestion, primary_reason, alternate_suggestions, quiz_type)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            (
+                user_id,
+                json.dumps(answers),
+                primary_suggestion,
+                primary_reason,
+                json.dumps(alternate_suggestions),
+                "arts"
+            )
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "primary_suggestion": primary_suggestion,
+            "primary_reason": primary_reason,
+            "alternate_suggestions": alternate_suggestions
+        })
+
+    except Exception as e:
+        print("Error in /evaluate-quiz-arts:", e)
         return jsonify({
             "primary_suggestion": "Failed to evaluate quiz",
             "primary_reason": "",
             "alternate_suggestions": []
         }), 500
 
+# ------------------- Quiz for Commerce -------------------
+@app.route("/generate-quiz-commerce", methods=["GET"])
+def generate_quiz_commerce():
+    try:
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
 
+        prompt = """Generate 10 multiple-choice career guidance questions 
+        for Indian students from Commerce background 
+        who are unsure about their career options.
+
+        Cover paths like:
+        - B.Com / Accounting / Finance
+        - CA / CS / CMA
+        - Banking / Finance / Insurance
+        - Economics / Statistics
+        - Business Analytics / Data Analysis
+        - Management / BBA / MBA
+        - Entrepreneurship / Startups
+        - Marketing / Sales / Digital Marketing
+        - Government & Competitive Exams
+        - Teaching / Academia
+
+        Instructions:
+        1. Questions should assess interest in numbers, analysis, business strategy,
+           finance, risk-taking, leadership, management, and entrepreneurship.
+        2. Each question must have exactly 4 situational options.
+        3. Do NOT mention degree names directly in options.
+
+        Return ONLY valid JSON:
+        {
+          "questions": [
+            {
+              "question": "string",
+              "options": ["option1", "option2", "option3", "option4"]
+            }
+          ]
+        }
+        """
+
+        response = model.generate_content(prompt)
+        raw_text = response.text.strip()
+        raw_text = raw_text.replace("```json", "").replace("```", "").strip()
+
+        try:
+            data = json.loads(raw_text)
+            questions = data.get("questions", [])
+        except json.JSONDecodeError:
+            questions = []
+
+        valid_questions = []
+        for q in questions:
+            if isinstance(q, dict) and "question" in q and "options" in q:
+                if isinstance(q["options"], list) and len(q["options"]) == 4:
+                    valid_questions.append(q)
+
+        return jsonify({"questions": valid_questions})
+
+    except Exception as e:
+        print("Error generating quiz commerce:", e)
+        return jsonify({"questions": []})
+    
+@app.route("/evaluate-quiz-commerce", methods=["POST"])
+@jwt_required()
+def evaluate_quiz_commerce():
+    try:
+        user_id = get_jwt_identity()
+
+        # ---- SAFE JSON READ ----
+        data = request.get_json(silent=True) or {}
+        answers = data.get("answers", {})
+
+        if not answers:
+            return jsonify({
+                "primary_suggestion": "Please answer the quiz questions first",
+                "primary_reason": "",
+                "alternate_suggestions": []
+            }), 400
+        prompt = f"""
+You are a career advisor. Based on the student's answers:
+
+{answers}
+
+Consider these Commerce career paths:
+- Accounting / Finance
+- CA / CS / CMA
+- Banking / Insurance
+- Economics / Statistics
+- Business Analytics / Data Analysis
+- Management / BBA / MBA
+- Entrepreneurship / Startups
+- Marketing / Sales / Digital Marketing
+- Teaching / Academia
+- Government & Competitive Exams
+
+Rules:
+1. Suggest ONE primary career path.
+2. Suggest 2–3 alternate paths if applicable.
+3. Give short reasons (1–2 sentences).
+
+Return ONLY valid JSON:
+{
+  "primary_suggestion": "string",
+  "primary_reason": "string",
+  "alternate_suggestions": [
+    { "career": "string", "reason": "string" }
+  ]
+}
+"""
+
+        # ---- CALL GEMINI ----
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
+        response = model.generate_content(prompt)
+        raw_text = response.text.strip()
+
+        # ---- SAFE JSON EXTRACTION ----
+        import re
+        match = re.search(r"\{[\s\S]*\}", raw_text)
+        if not match:
+            raise ValueError("No JSON returned from Gemini")
+
+        result_data = json.loads(match.group(0))
+
+        primary_suggestion = result_data.get("primary_suggestion", "")
+        primary_reason = result_data.get("primary_reason", "")
+        alternate_suggestions = result_data.get("alternate_suggestions", [])
+
+        # ---- STORE IN DB ----
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            INSERT INTO quiz_results
+            (user_id, answers, suggestion, primary_reason, alternate_suggestions, quiz_type)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            (
+                user_id,
+                json.dumps(answers),
+                primary_suggestion,
+                primary_reason,
+                json.dumps(alternate_suggestions),
+                "commerce"
+            )
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "primary_suggestion": primary_suggestion,
+            "primary_reason": primary_reason,
+            "alternate_suggestions": alternate_suggestions
+        })
+
+    except Exception as e:
+        print("Error in /evaluate-quiz-commerce:", e)
+        return jsonify({
+            "primary_suggestion": "Failed to evaluate quiz",
+            "primary_reason": "",
+            "alternate_suggestions": []
+        }), 500
 
 
 @app.route("/user-quiz-results", methods=["GET"])
