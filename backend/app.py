@@ -46,19 +46,23 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # ------------------- Gemini API -------------------
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
+
 # ------------------- Helpers -------------------
 def get_db_connection():
     return mysql.connector.connect(
         host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME, port=DB_PORT
     )
 
+
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 # ------------------- Routes -------------------
-@app.route('/uploads/<filename>')
+@app.route("/uploads/<filename>")
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
 
 @app.before_request
 def check_inactivity():
@@ -97,6 +101,7 @@ def check_inactivity():
     except Exception:
         return
 
+
 # ------------------- User Auth -------------------
 @app.route("/register", methods=["POST"])
 def register():
@@ -122,10 +127,14 @@ def register():
         conn.commit()
         return jsonify({"msg": "User registered successfully"}), 201
     except mysql.connector.Error as e:
-        return jsonify({"msg": "Email already exists or DB error", "error": str(e)}), 400
+        return (
+            jsonify({"msg": "Email already exists or DB error", "error": str(e)}),
+            400,
+        )
     finally:
         cursor.close()
         conn.close()
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -158,6 +167,7 @@ def login():
 
     return jsonify(access_token=access_token, user_id=user["id"]), 200
 
+
 @app.route("/profile", methods=["GET"])
 @jwt_required()
 def profile():
@@ -185,6 +195,7 @@ def profile():
     }
     return jsonify(user_data), 200
 
+
 @app.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
@@ -196,6 +207,7 @@ def logout():
     cursor.close()
     conn.close()
     return jsonify({"msg": "Logged out"}), 200
+
 
 # ------------------- Upload -------------------
 @app.route("/upload-photo", methods=["POST"])
@@ -216,7 +228,9 @@ def upload_photo():
         user_id = int(get_jwt_identity())
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("UPDATE users SET profile_photo=%s WHERE id=%s", (filename, user_id))
+        cursor.execute(
+            "UPDATE users SET profile_photo=%s WHERE id=%s", (filename, user_id)
+        )
         conn.commit()
         cursor.close()
         conn.close()
@@ -224,6 +238,7 @@ def upload_photo():
         return jsonify({"msg": "File uploaded successfully", "filename": filename}), 200
 
     return jsonify({"msg": "File type not allowed"}), 400
+
 
 # ------------------- Quiz 10TH -------------------
 @app.route("/generate-quiz", methods=["GET"])
@@ -275,7 +290,6 @@ def generate_quiz():
         return jsonify({"questions": []})
 
 
-
 @app.route("/evaluate-quiz", methods=["POST"])
 @jwt_required()
 def evaluate_quiz_route():
@@ -287,28 +301,36 @@ def evaluate_quiz_route():
         answers = data.get("answers", {})
 
         if not answers:
-            return jsonify({
-                "suggestion": "Please answer the quiz questions first",
-                "reason": ""
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "suggestion": "Please answer the quiz questions first",
+                        "reason": "",
+                    }
+                ),
+                400,
+            )
 
-        prompt =f"""
-You are a career advisor. Based on the student's selected situational options:
+        prompt = f"""
+You are a career advisor. Based on the student's situational answers:
 
 {answers}
 
-Map each answer to the most appropriate stream:
-- Science-Maths: if answers show interest in math, experiments, coding, science projects
-- Science-Biology: if answers show interest in biology, healthcare, nature, medicine
-- Commerce: if answers show interest in business, finance, planning, entrepreneurship
-- Arts: if answers show interest in creativity, literature, social issues, arts
-- Diploma: if answers show interest in hands-on practical skills or vocational activities
+Map the student to ONE best stream:
+- Science-Maths: interest in mathematics, problem-solving, experiments, coding
+- Science-Biology: interest in biology, healthcare, nature, medicine
+- Commerce: interest in business, finance, planning, entrepreneurship
+- Arts: interest in creativity, literature, social issues, humanities
+- Diploma: interest in hands-on practical skills, tools, vocational work
 
-Suggest **only one best stream** for the student with a **short reason** (1-2 sentences).
-Return the result as JSON in this format:
+Rules:
+1. Suggest ONLY one best stream.
+2. Give a short reason (1–2 sentences).
+
+Return ONLY valid JSON:
 {{
-    "suggestion": "Science-Maths",
-    "reason": "Student enjoys problem-solving and experiments, which suits Science-Maths."
+  "suggestion": "string",
+  "reason": "string"
 }}
 """
 
@@ -319,13 +341,17 @@ Return the result as JSON in this format:
 
         # ---- SAFE JSON EXTRACTION ----
         import re
+
         match = re.search(r"\{[\s\S]*\}", raw_text)
         if not match:
-            raise ValueError("No JSON returned from Gemini")
+            raise ValueError("No valid JSON returned from Gemini")
 
-        result_data = json.loads(match.group(0))
+        try:
+            result_data = json.loads(match.group(0))
+        except json.JSONDecodeError:
+            raise ValueError("Invalid JSON from Gemini")
 
-        suggestion = result_data.get("suggestion", "Unknown")
+        suggestion = result_data.get("suggestion", "")
         reason = result_data.get("reason", "")
 
         # ---- DB SAVE ----
@@ -333,36 +359,27 @@ Return the result as JSON in this format:
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO quiz_results (user_id, answers, suggestion, quiz_type)
+            INSERT INTO quiz_results
+            (user_id, answers, suggestion, quiz_type)
             VALUES (%s, %s, %s, %s)
             """,
-            (
-                user_id,
-                json.dumps(answers),
-                suggestion,
-                "10th"
-            )
+            (user_id, json.dumps(answers), suggestion, "10th"),
         )
         conn.commit()
         cursor.close()
         conn.close()
 
-        return jsonify({
-            "suggestion": suggestion,
-            "reason": reason
-        })
+        return jsonify({"suggestion": suggestion, "reason": reason})
 
     except Exception as e:
         print("❌ Error in /evaluate-quiz:", e)
-        return jsonify({
-            "suggestion": "Server error while evaluating quiz",
-            "reason": ""
-        }), 500
-
-    
-
+        return (
+            jsonify({"suggestion": "Server error while evaluating quiz", "reason": ""}),
+            500,
+        )
 
     # ------------------- Quiz for 12th Science (Maths) -------------------
+
 
 @app.route("/generate-quiz-12maths", methods=["GET"])
 def generate_quiz_12maths():
@@ -439,11 +456,16 @@ def evaluate_quiz_12maths():
         answers = data.get("answers", {})
 
         if not answers:
-            return jsonify({
-                "primary_suggestion": "Please answer the quiz questions first",
-                "primary_reason": "",
-                "alternate_suggestions": []
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "primary_suggestion": "Please answer the quiz questions first",
+                        "primary_reason": "",
+                        "alternate_suggestions": [],
+                    }
+                ),
+                400,
+            )
 
         prompt = f"""
 You are a career advisor. Based on the student's situational answers:
@@ -485,6 +507,7 @@ Return ONLY valid JSON:
 
         # ---- SAFE JSON EXTRACTION ----
         import re
+
         match = re.search(r"\{[\s\S]*\}", raw_text)
         if not match:
             raise ValueError("No valid JSON returned from Gemini")
@@ -513,29 +536,36 @@ Return ONLY valid JSON:
                 primary_suggestion,
                 primary_reason,
                 json.dumps(alternate_suggestions),
-                "12th-maths"
-            )
+                "12th-maths",
+            ),
         )
         conn.commit()
         cursor.close()
         conn.close()
 
-        return jsonify({
-            "primary_suggestion": primary_suggestion,
-            "primary_reason": primary_reason,
-            "alternate_suggestions": alternate_suggestions
-        })
+        return jsonify(
+            {
+                "primary_suggestion": primary_suggestion,
+                "primary_reason": primary_reason,
+                "alternate_suggestions": alternate_suggestions,
+            }
+        )
 
     except Exception as e:
         print("❌ Error in /evaluate-quiz-12maths:", e)
-        return jsonify({
-            "primary_suggestion": "Server error while evaluating quiz",
-            "primary_reason": "",
-            "alternate_suggestions": []
-        }), 500
-
+        return (
+            jsonify(
+                {
+                    "primary_suggestion": "Server error while evaluating quiz",
+                    "primary_reason": "",
+                    "alternate_suggestions": [],
+                }
+            ),
+            500,
+        )
 
     # ------------------- Quiz for 12th Science (Biology) -------------------
+
 
 @app.route("/generate-quiz-12biology", methods=["GET"])
 def generate_quiz_12biology():
@@ -595,7 +625,7 @@ def generate_quiz_12biology():
     except Exception as e:
         print("Error generating quiz 12biology:", e)
         return jsonify({"questions": []})
-    
+
 
 @app.route("/evaluate-quiz-12biology", methods=["POST"])
 @jwt_required()
@@ -608,11 +638,16 @@ def evaluate_quiz_12biology():
         answers = data.get("answers", {})
 
         if not answers:
-            return jsonify({
-                "primary_suggestion": "Please answer the quiz questions first",
-                "primary_reason": "",
-                "alternate_suggestions": []
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "primary_suggestion": "Please answer the quiz questions first",
+                        "primary_reason": "",
+                        "alternate_suggestions": [],
+                    }
+                ),
+                400,
+            )
 
         prompt = f"""
 You are a career advisor. Based on the student's situational answers:
@@ -653,6 +688,7 @@ Return ONLY valid JSON:
 
         # ---- SAFE JSON EXTRACTION ----
         import re
+
         match = re.search(r"\{[\s\S]*\}", raw_text)
         if not match:
             raise ValueError("No valid JSON returned from Gemini")
@@ -681,29 +717,37 @@ Return ONLY valid JSON:
                 primary_suggestion,
                 primary_reason,
                 json.dumps(alternate_suggestions),
-                "12th-biology"
-            )
+                "12th-biology",
+            ),
         )
         conn.commit()
         cursor.close()
         conn.close()
 
-        return jsonify({
-            "primary_suggestion": primary_suggestion,
-            "primary_reason": primary_reason,
-            "alternate_suggestions": alternate_suggestions
-        })
+        return jsonify(
+            {
+                "primary_suggestion": primary_suggestion,
+                "primary_reason": primary_reason,
+                "alternate_suggestions": alternate_suggestions,
+            }
+        )
 
     except Exception as e:
         print("❌ Error in /evaluate-quiz-12biology:", e)
-        return jsonify({
-            "primary_suggestion": "Server error while evaluating quiz",
-            "primary_reason": "",
-            "alternate_suggestions": []
-        }), 500
+        return (
+            jsonify(
+                {
+                    "primary_suggestion": "Server error while evaluating quiz",
+                    "primary_reason": "",
+                    "alternate_suggestions": [],
+                }
+            ),
+            500,
+        )
 
 
 # ------------------- Quiz for ARTS -------------------
+
 
 @app.route("/generate-quiz-arts", methods=["GET"])
 def generate_quiz_arts():
@@ -764,7 +808,8 @@ def generate_quiz_arts():
     except Exception as e:
         print("Error generating quiz arts:", e)
         return jsonify({"questions": []})
-    
+
+
 @app.route("/evaluate-quiz-arts", methods=["POST"])
 @jwt_required()
 def evaluate_quiz_arts():
@@ -776,18 +821,23 @@ def evaluate_quiz_arts():
         answers = data.get("answers", {})
 
         if not answers:
-            return jsonify({
-                "primary_suggestion": "Please answer the quiz questions first",
-                "primary_reason": "",
-                "alternate_suggestions": []
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "primary_suggestion": "Please answer the quiz questions first",
+                        "primary_reason": "",
+                        "alternate_suggestions": [],
+                    }
+                ),
+                400,
+            )
 
         prompt = f"""
-You are a career advisor. Based on the student's answers:
+You are a career advisor. Based on the student's situational answers:
 
 {answers}
 
-Consider these Arts/Humanities career paths:
+Consider Arts & Humanities career paths:
 - Psychology / Sociology / Humanities
 - Law
 - Journalism / Mass Communication
@@ -801,41 +851,44 @@ Consider these Arts/Humanities career paths:
 
 Rules:
 1. Suggest ONE primary career path.
-2. Suggest 2–3 alternate paths if suitable.
-3. Give short reasons (1–2 sentences).
+2. Suggest 2–3 alternate paths if applicable.
+3. Provide short reasons (1–2 sentences).
 
 Return ONLY valid JSON:
-{
+{{
   "primary_suggestion": "string",
   "primary_reason": "string",
   "alternate_suggestions": [
-    { "career": "string", "reason": "string" }
+    {{ "career": "string", "reason": "string" }}
   ]
-}
+}}
 """
 
+        # ---- GEMINI CALL ----
         model = genai.GenerativeModel("models/gemini-2.5-flash")
         response = model.generate_content(prompt)
         raw_text = response.text.strip()
 
+        # ---- SAFE JSON EXTRACTION ----
         import re
-        match = re.search(r"\{.*\}", raw_text, re.DOTALL)
-        if match:
-            raw_text = match.group(0)
+
+        match = re.search(r"\{[\s\S]*\}", raw_text)
+        if not match:
+            raise ValueError("No valid JSON returned from Gemini")
 
         try:
-            data = json.loads(raw_text)
+            result_data = json.loads(match.group(0))
         except json.JSONDecodeError:
-            return jsonify({
-                "primary_suggestion": "Failed to evaluate quiz",
-                "primary_reason": "",
-                "alternate_suggestions": []
-            }), 500
+            raise ValueError("Invalid JSON from Gemini")
 
-        primary_suggestion = data.get("primary_suggestion", "")
-        primary_reason = data.get("primary_reason", "")
-        alternate_suggestions = data.get("alternate_suggestions", [])
+        primary_suggestion = result_data.get("primary_suggestion", "")
+        primary_reason = result_data.get("primary_reason", "")
+        alternate_suggestions = result_data.get("alternate_suggestions", [])
 
+        if not isinstance(alternate_suggestions, list):
+            alternate_suggestions = []
+
+        # ---- DB SAVE ----
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
@@ -850,26 +903,34 @@ Return ONLY valid JSON:
                 primary_suggestion,
                 primary_reason,
                 json.dumps(alternate_suggestions),
-                "arts"
-            )
+                "arts",
+            ),
         )
         conn.commit()
         cursor.close()
         conn.close()
 
-        return jsonify({
-            "primary_suggestion": primary_suggestion,
-            "primary_reason": primary_reason,
-            "alternate_suggestions": alternate_suggestions
-        })
+        return jsonify(
+            {
+                "primary_suggestion": primary_suggestion,
+                "primary_reason": primary_reason,
+                "alternate_suggestions": alternate_suggestions,
+            }
+        )
 
     except Exception as e:
-        print("Error in /evaluate-quiz-arts:", e)
-        return jsonify({
-            "primary_suggestion": "Failed to evaluate quiz",
-            "primary_reason": "",
-            "alternate_suggestions": []
-        }), 500
+        print("❌ Error in /evaluate-quiz-arts:", e)
+        return (
+            jsonify(
+                {
+                    "primary_suggestion": "Server error while evaluating quiz",
+                    "primary_reason": "",
+                    "alternate_suggestions": [],
+                }
+            ),
+            500,
+        )
+
 
 # ------------------- Quiz for Commerce -------------------
 @app.route("/generate-quiz-commerce", methods=["GET"])
@@ -931,7 +992,8 @@ def generate_quiz_commerce():
     except Exception as e:
         print("Error generating quiz commerce:", e)
         return jsonify({"questions": []})
-    
+
+
 @app.route("/evaluate-quiz-commerce", methods=["POST"])
 @jwt_required()
 def evaluate_quiz_commerce():
@@ -943,17 +1005,23 @@ def evaluate_quiz_commerce():
         answers = data.get("answers", {})
 
         if not answers:
-            return jsonify({
-                "primary_suggestion": "Please answer the quiz questions first",
-                "primary_reason": "",
-                "alternate_suggestions": []
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "primary_suggestion": "Please answer the quiz questions first",
+                        "primary_reason": "",
+                        "alternate_suggestions": [],
+                    }
+                ),
+                400,
+            )
+
         prompt = f"""
-You are a career advisor. Based on the student's answers:
+You are a career advisor. Based on the student's situational answers:
 
 {answers}
 
-Consider these Commerce career paths:
+Consider Commerce career paths:
 - Accounting / Finance
 - CA / CS / CMA
 - Banking / Insurance
@@ -968,36 +1036,43 @@ Consider these Commerce career paths:
 Rules:
 1. Suggest ONE primary career path.
 2. Suggest 2–3 alternate paths if applicable.
-3. Give short reasons (1–2 sentences).
+3. Provide short reasons (1–2 sentences).
 
 Return ONLY valid JSON:
-{
+{{
   "primary_suggestion": "string",
   "primary_reason": "string",
   "alternate_suggestions": [
-    { "career": "string", "reason": "string" }
+    {{ "career": "string", "reason": "string" }}
   ]
-}
+}}
 """
 
-        # ---- CALL GEMINI ----
+        # ---- GEMINI CALL ----
         model = genai.GenerativeModel("models/gemini-2.5-flash")
         response = model.generate_content(prompt)
         raw_text = response.text.strip()
 
         # ---- SAFE JSON EXTRACTION ----
         import re
+
         match = re.search(r"\{[\s\S]*\}", raw_text)
         if not match:
-            raise ValueError("No JSON returned from Gemini")
+            raise ValueError("No valid JSON returned from Gemini")
 
-        result_data = json.loads(match.group(0))
+        try:
+            result_data = json.loads(match.group(0))
+        except json.JSONDecodeError:
+            raise ValueError("Invalid JSON from Gemini")
 
         primary_suggestion = result_data.get("primary_suggestion", "")
         primary_reason = result_data.get("primary_reason", "")
         alternate_suggestions = result_data.get("alternate_suggestions", [])
 
-        # ---- STORE IN DB ----
+        if not isinstance(alternate_suggestions, list):
+            alternate_suggestions = []
+
+        # ---- DB SAVE ----
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
@@ -1012,34 +1087,44 @@ Return ONLY valid JSON:
                 primary_suggestion,
                 primary_reason,
                 json.dumps(alternate_suggestions),
-                "commerce"
-            )
+                "commerce",
+            ),
         )
         conn.commit()
         cursor.close()
         conn.close()
 
-        return jsonify({
-            "primary_suggestion": primary_suggestion,
-            "primary_reason": primary_reason,
-            "alternate_suggestions": alternate_suggestions
-        })
+        return jsonify(
+            {
+                "primary_suggestion": primary_suggestion,
+                "primary_reason": primary_reason,
+                "alternate_suggestions": alternate_suggestions,
+            }
+        )
 
     except Exception as e:
-        print("Error in /evaluate-quiz-commerce:", e)
-        return jsonify({
-            "primary_suggestion": "Failed to evaluate quiz",
-            "primary_reason": "",
-            "alternate_suggestions": []
-        }), 500
+        print("❌ Error in /evaluate-quiz-commerce:", e)
+        return (
+            jsonify(
+                {
+                    "primary_suggestion": "Server error while evaluating quiz",
+                    "primary_reason": "",
+                    "alternate_suggestions": [],
+                }
+            ),
+            500,
+        )
 
 
+# ------------------- Get User Quiz Results -------------------
 @app.route("/user-quiz-results", methods=["GET"])
 @jwt_required()
 def get_user_quiz_results():
     try:
         user_id = get_jwt_identity()
-        quiz_type = request.args.get("quiz_type")  # optional filter: '10th' or '12th-maths'
+        quiz_type = request.args.get(
+            "quiz_type"
+        )  # optional filter: '10th' or '12th-maths'
 
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
@@ -1047,12 +1132,12 @@ def get_user_quiz_results():
         if quiz_type:
             cursor.execute(
                 "SELECT suggestion, primary_reason, alternate_suggestions, quiz_type, created_at FROM quiz_results WHERE user_id=%s AND quiz_type=%s ORDER BY created_at DESC",
-                (user_id, quiz_type)
+                (user_id, quiz_type),
             )
         else:
             cursor.execute(
                 "SELECT suggestion, primary_reason, alternate_suggestions, quiz_type, created_at FROM quiz_results WHERE user_id=%s ORDER BY created_at DESC",
-                (user_id,)
+                (user_id,),
             )
 
         results = cursor.fetchall()
@@ -1072,7 +1157,6 @@ def get_user_quiz_results():
     except Exception as e:
         print("Error in /user-quiz-results:", e)
         return jsonify({"results": []}), 500
-
 
 
 # ------------------- Run App -------------------
