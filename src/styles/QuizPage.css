@@ -33,14 +33,14 @@
   font-weight: bold;
   color: #4b0082;
   font-size: 1rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   transition: 0.3s;
   text-align: left;
 }
 
 .quiz-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   background-color: #e9d8ff;
 }
 
@@ -85,14 +85,16 @@
 /* Responsive adjustments */
 @media screen and (max-width: 1000px) {
   .quiz-cards {
-    grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 cards per row */
     justify-items: center;
   }
 }
 
 @media screen and (max-width: 600px) {
   .quiz-cards {
-    grid-template-columns: 1fr; /* 1 card per row */
+    grid-template-columns: 1fr;
+    /* 1 card per row */
     justify-items: center;
   }
 }
