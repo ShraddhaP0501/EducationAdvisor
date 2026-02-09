@@ -1,70 +1,63 @@
-# Getting Started with Create React App
+📘 EducationAdvisor
+EducationAdvisor is a student-focused web application designed to guide learners in choosing the right education paths, courses, and career options.  
+The platform provides structured educational information through a clean and responsive user interface.
+🧠 How It Works
+- The application is built using **React** for the frontend.
+- Users interact with the UI to explore educational guidance and resources.
+- The frontend can communicate with backend APIs (located in the `backend` folder) to fetch or manage data.
+- Backend services can be connected to a database to store and retrieve educational or user-related information.
+APIs & Database
+- Backend APIs handle data requests and business logic.
+- The project structure supports integration with databases such as **MySQL** or **MongoDB** (depending on backend implementation).
+- Currently, the frontend is ready to consume API data when backend endpoints are available.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+🚀 Features
+🎓 Educational guidance platform
+🔍 User-friendly and responsive UI
+🧭 Organized navigation for education-related content
+🔌 Backend-ready architecture for APIs and databases
+📱 Mobile-first responsive design
 
-## Available Scripts
+🛠️ Tech Stack
+Frontend
+- React
+- JavaScript
+- HTML
+- CSS
+Backend
+- Python
+Database
+- MySQL
 
-In the project directory, you can run:
+📁 Project Structure
+EducationAdvisor/
+│
+├── backend/Backend APIs and server logic
+├── public/Public assets
+├── src/ React source code
+├── package.json
+├── .gitignore
+└── README.md
 
-### `npm start`
+Prerequisites
+- Node.js (v14 or higher)
+- npm
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Steps:-
+1.Clone the repository:
+   bash
+   git clone https://github.com/ShraddhaP0501/EducationAdvisor.git
+2.Navigate to the project folder:
+  cd EducationAdvisor
+3.Install dependencies:
+  npm install
+4.Start the application:
+  npm start
+5.Open in browser:
+  http://localhost:3000
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+🧪 Backend Setup (Optional)
+1.Navigate to the project folder:  
+  cd backend
+2.install all the requirement libraries
+  pip install -r requirement.txt
