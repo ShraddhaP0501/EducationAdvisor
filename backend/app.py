@@ -1,3 +1,5 @@
+from pprint import pp
+
 from flask import Flask, request, jsonify, send_from_directory
 from flask_jwt_extended import (
     JWTManager,
@@ -1161,4 +1163,5 @@ def get_user_quiz_results():
 
 # ------------------- Run App -------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    PORT = int(os.environ.get("PORT", 5000))
+    app.run(port=PORT)
